@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Intereses Tasa pura + Pasiva Digital</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --accent: #3498db;
+            --light: #ecf0f1;
+            --dark: #2c3e50;
+            --success: #27ae60;
+            --warning: #e74c3c;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --border-radius: 8px;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: var(--border-radius);
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow);
+            text-align: center;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .card {
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .card-title {
+            color: var(--primary);
+            border-bottom: 2px solid var(--accent);
+            padding-bottom: 0.75rem;
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--dark);
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius);
+            font-size: 16px;
+            transition: border 0.3s ease;
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+        }
+        
+        .btn {
+            display: inline-block;
+            background: var(--accent);
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-align: center;
+            text-decoration: none;
+        }
+        
+        .btn:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        .btn-block {
+            display: block;
+            width: 100%;
+        }
+        
+        .btn-secondary {
+            background: var(--success);
+            margin-top: 1rem;
+        }
+        
+        .btn-secondary:hover {
+            background: #229954;
+        }
+        
+        .result-container {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background-color: #f8f9fa;
+            border-left: 4px solid var(--success);
+            border-radius: var(--border-radius);
+        }
+        
+        .result-title {
+            font-size: 1.3rem;
+            color: var(--success);
+            margin-bottom: 1rem;
+        }
+        
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .result-item:last-child {
+            border-bottom: none;
+            font-weight: bold;
+            font-size: 1.2rem;
+            color: var(--primary);
+            padding-top: 1rem;
+        }
+        
+        .tasa-info {
+            background-color: #e8f4fc;
+            padding: 1rem;
+            border-radius: var(--border-radius);
+            margin-top: 1rem;
+            font-size: 0.9rem;
+            color: #2c3e50;
+        }
+        
+        .date-range {
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .date-range > div {
+            flex: 1;
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 2rem;
+            padding: 1rem;
+            color: #7f8c8d;
+            font-size: 0.9rem;
+        }
+        
+        .calculator-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+        
+        .info-box {
+            background-color: #f9f9f9;
+            padding: 1rem;
+            border-radius: var(--border-radius);
+            margin-top: 1rem;
+            font-size: 0.9rem;
+        }
+        
+        .detailed-results {
+            max-height: 400px;
+            overflow-y: auto;
+            margin-top: 1.5rem;
+        }
+        
+        .period-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+        
+        .period-table th, .period-table td {
+            padding: 8px 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .period-table th {
+            background-color: #f2f2f2;
+            position: sticky;
+            top: 0;
+        }
+        
+        .phase-section {
+            background-color: #f0f7ff;
+            padding: 1rem;
+            border-radius: var(--border-radius);
+            margin-bottom: 1.5rem;
+        }
+        
+        .phase-title {
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+        
+        .export-section {
+            text-align: center;
+            margin-top: 1.5rem;
+        }
+        
+        @media (max-width: 968px) {
+            .calculator-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .date-range {
+                flex-direction: column;
+                gap: 0;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Calculadora de Intereses</h1>
+            <p class="subtitle">Sistema: 6% anual hasta determinación + Tasa pasiva ditigal plazo fijo 30 días BAPRO</p>
+        </header>
+        
+        <div class="calculator-grid">
+            <div class="card">
+                <h2 class="card-title">Datos del Caso</h2>
+                <form id="interest-form">
+                    <div class="form-group">
+                        <label for="caratula">Carátula del Expediente:</label>
+                        <input type="text" id="caratula" placeholder="Ej: 'Pérez, Juan c/ SA SRL s/ Daños y Perjuicios'">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="monto">Monto ($):</label>
+                        <input type="number" id="monto" placeholder="Ingrese el monto reclamado" min="0" step="0.01" required>
+                    </div>
+                    
+                    <div class="phase-section">
+                        <div class="phase-title">Período 1: 6% anual (hasta determinación)</div>
+                        <div class="form-group">
+                            <label for="fechaHecho">Fecha del Hecho Dañoso/Mora:</label>
+                            <input type="date" id="fechaHecho" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="fechaDeterminacion">Fecha de Determinación:</label>
+                            <input type="date" id="fechaDeterminacion" required>
+                        </div>
+                    </div>
+                    
+                    <div class="phase-section">
+                        <div class="phase-title">Período 2: Tasa BAPRO</div>
+                        <div class="form-group">
+                            <label for="fechaPago">Fecha de Pago (o de liquidación):</label>
+                            <input type="date" id="fechaPago" required>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-block">Calcular Intereses</button>
+                </form>
+                
+                <div class="tasa-info">
+                    <p><strong>Información sobre el cálculo:</strong> Se aplica el 6% anual desde el hecho hasta la determinación, se capitalizan esos intereses, y luego se aplica la Tasa Pasiva Digital Plazo Fijo 30 días del Banco de la Provincia de Buenos Aires sobre el total capitalizado hasta la fecha de pago.</p>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h2 class="card-title">Resultado del Cálculo</h2>
+                <div class="result-container" id="resultado" style="display: none;">
+                    <h3 class="result-title">Desglose del Cálculo</h3>
+                    
+                    <div class="result-item">
+                        <span>Carátula:</span>
+                        <span id="res-caratula">-</span>
+                    </div>
+                    
+                    <div class="result-item">
+                        <span>Monto:</span>
+                        <span id="res-monto">$0.00</span>
+                    </div>
+                    
+                    <div class="phase-section">
+                        <div class="phase-title">Período 1: 6% anual</div>
+                        <div class="result-item">
+                            <span>Días del período:</span>
+                            <span id="res-dias-periodo1">0 días</span>
+                        </div>
+                        
+                        <div class="result-item">
+                            <span>Intereses generados (6% anual):</span>
+                            <span id="res-intereses1">$0.00</span>
+                        </div>
+                        
+                        <div class="result-item">
+                            <span>Total capitalizado:</span>
+                            <span id="res-capitalizado">$0.00</span>
+                        </div>
+                    </div>
+                    
+                    <div class="phase-section">
+                        <div class="phase-title">Período 2: Tasa BPBA</div>
+                        <div class="result-item">
+                            <span>Días del período:</span>
+                            <span id="res-dias-periodo2">0 días</span>
+                        </div>
+                        
+                        <div class="result-item">
+                            <span>Intereses generados (tasa BAPRO):</span>
+                            <span id="res-intereses2">$0.00</span>
+                        </div>
+                    </div>
+                    
+                    <div class="result-item">
+                        <span>Total intereses:</span>
+                        <span id="res-intereses-total">$0.00</span>
+                    </div>
+                    
+                    <div class="result-item">
+                        <span>Total a Reclamar:</span>
+                        <span id="res-total">$0.00</span>
+                    </div>
+                    
+                    <div class="export-section">
+                        <button id="export-pdf" class="btn btn-secondary">Exportar a PDF</button>
+                    </div>
+                </div>
+                
+                <div class="detailed-results" id="detailed-results" style="display: none;">
+                    <h3>Detalle de períodos con tasa BAPRO</h3>
+                    <table class="period-table">
+                        <thead>
+                            <tr>
+                                <th>Desde</th>
+                                <th>Hasta</th>
+                                <th>Tasa Anual</th>
+                                <th>Días</th>
+                                <th>Interés</th>
+                            </tr>
+                        </thead>
+                        <tbody id="period-details">
+                            <!-- Los detalles de períodos se insertarán aquí -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2 class="card-title">Información Importante</h2>
+            <p>El cálculo de intereses judiciales se realiza aplicando el 6% anual desde la fecha del hecho dañoso o mora hasta la fecha de determinación del monto. Estos intereses se capitalizan, y posteriormente se aplica la Tasa Pasiva Plazo Fijo Digital a 30 días del Banco de la Provincia de Buenos Aires sobre el total capitalizado, hasta la fecha de pago efectivo o liquidación.</p>
+            <p>Este sistema de cálculo emerge de la doctrina legal de la SCBA Vera - Nidera.</p>
+        </div>
+        
+        <div class="footer">
+            <p>GPL - GNU 2.0. 2025 Juzgado Civil y Comercial N° 4 - Azul</p>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+    
+    <script>
+        // Datos de tasas históricas del BPBA (convertidas al formato yyyy-mm-dd)
+        const tasasBPBA = [
+            { desde: '2008-08-19', hasta: '2008-10-16', tasa: 12.00 },
+            { desde: '2008-10-17', hasta: '2008-11-04', tasa: 15.00 },
+            { desde: '2008-11-05', hasta: '2009-01-14', tasa: 17.50 },
+            { desde: '2009-01-15', hasta: '2009-01-22', tasa: 15.75 },
+            { desde: '2009-01-23', hasta: '2009-08-19', tasa: 14.50 },
+            { desde: '2009-08-20', hasta: '2009-11-18', tasa: 14.00 },
+            { desde: '2009-11-19', hasta: '2009-12-01', tasa: 12.00 },
+            { desde: '2009-12-02', hasta: '2009-12-10', tasa: 11.00 },
+            { desde: '2009-12-11', hasta: '2010-03-02', tasa: 9.50 },
+            { desde: '2010-03-03', hasta: '2011-08-08', tasa: 10.00 },
+            { desde: '2011-08-09', hasta: '2011-10-02', tasa: 10.50 },
+            { desde: '2011-10-03', hasta: '2011-10-18', tasa: 12.00 },
+            { desde: '2011-10-19', hasta: '2011-11-16', tasa: 14.00 },
+            { desde: '2011-11-17', hasta: '2012-01-19', tasa: 16.00 },
+            { desde: '2012-01-20', hasta: '2012-02-16', tasa: 15.50 },
+            { desde: '2012-02-17', hasta: '2012-03-08', tasa: 14.50 },
+            { desde: '2012-03-09', hasta: '2012-08-09', tasa: 14.00 },
+            { desde: '2012-08-10', hasta: '2012-10-17', tasa: 14.75 },
+            { desde: '2012-10-18', hasta: '2012-12-09', tasa: 15.00 },
+            { desde: '2012-12-10', hasta: '2013-05-22', tasa: 15.50 },
+            { desde: '2013-05-23', hasta: '2013-06-26', tasa: 15.75 },
+            { desde: '2013-06-27', hasta: '2013-08-01', tasa: 16.00 },
+            { desde: '2013-08-02', hasta: '2013-08-15', tasa: 16.25 },
+            { desde: '2013-08-16', hasta: '2013-09-12', tasa: 17.00 },
+            { desde: '2013-09-13', hasta: '2013-10-17', tasa: 17.50 },
+            { desde: '2013-10-18', hasta: '2013-11-28', tasa: 17.75 },
+            { desde: '2013-11-29', hasta: '2013-12-18', tasa: 18.10 },
+            { desde: '2013-12-19', hasta: '2014-01-08', tasa: 18.60 },
+            { desde: '2014-01-09', hasta: '2014-01-15', tasa: 19.50 },
+            { desde: '2014-01-16', hasta: '2014-01-27', tasa: 20.00 },
+            { desde: '2014-01-28', hasta: '2014-01-30', tasa: 21.00 },
+            { desde: '2014-01-31', hasta: '2014-06-05', tasa: 23.75 },
+            { desde: '2014-06-06', hasta: '2014-07-03', tasa: 23.25 },
+            { desde: '2014-07-04', hasta: '2014-07-20', tasa: 23.00 },
+            { desde: '2014-07-21', hasta: '2014-10-02', tasa: 22.25 },
+            { desde: '2014-10-03', hasta: '2014-10-07', tasa: 20.50 },
+            { desde: '2014-10-08', hasta: '2014-10-31', tasa: 22.89 },
+            { desde: '2014-11-01', hasta: '2014-11-30', tasa: 23.32 },
+            { desde: '2014-12-01', hasta: '2015-01-31', tasa: 23.37 },
+            { desde: '2015-02-01', hasta: '2015-02-28', tasa: 23.35 },
+            { desde: '2015-03-01', hasta: '2015-03-31', tasa: 23.30 },
+            { desde: '2015-04-01', hasta: '2015-04-30', tasa: 23.06 },
+            { desde: '2015-05-01', hasta: '2015-05-31', tasa: 22.83 },
+            { desde: '2015-06-01', hasta: '2015-06-30', tasa: 22.76 },
+            { desde: '2015-07-01', hasta: '2015-07-26', tasa: 22.59 },
+            { desde: '2015-07-27', hasta: '2015-11-01', tasa: 23.58 },
+            { desde: '2015-11-02', hasta: '2015-12-16', tasa: 26.32 },
+            { desde: '2015-12-17', hasta: '2016-01-14', tasa: 30.00 },
+            { desde: '2016-01-15', hasta: '2016-02-03', tasa: 27.00 },
+            { desde: '2016-02-04', hasta: '2016-03-03', tasa: 25.25 },
+            { desde: '2016-03-04', hasta: '2016-06-30', tasa: 27.00 },
+            { desde: '2016-07-01', hasta: '2016-07-19', tasa: 25.00 },
+            { desde: '2016-07-20', hasta: '2016-07-25', tasa: 24.00 },
+            { desde: '2016-07-26', hasta: '2016-08-03', tasa: 23.50 },
+            { desde: '2016-08-04', hasta: '2016-08-11', tasa: 22.50 },
+            { desde: '2016-08-12', hasta: '2016-08-24', tasa: 22.00 },
+            { desde: '2016-08-25', hasta: '2016-09-06', tasa: 21.25 },
+            { desde: '2016-09-07', hasta: '2016-09-14', tasa: 20.75 },
+            { desde: '2016-09-15', hasta: '2016-09-27', tasa: 20.25 },
+            { desde: '2016-09-28', hasta: '2016-10-25', tasa: 20.00 },
+            { desde: '2016-10-26', hasta: '2016-11-01', tasa: 19.50 },
+            { desde: '2016-11-02', hasta: '2016-11-08', tasa: 19.00 },
+            { desde: '2016-11-09', hasta: '2016-11-15', tasa: 18.75 },
+            { desde: '2016-11-16', hasta: '2016-11-24', tasa: 18.50 },
+            { desde: '2016-11-25', hasta: '2017-01-01', tasa: 18.00 },
+            { desde: '2017-01-02', hasta: '2017-01-22', tasa: 17.75 },
+            { desde: '2017-01-23', hasta: '2017-01-29', tasa: 17.50 },
+            { desde: '2017-01-30', hasta: '2017-03-19', tasa: 17.25 },
+            { desde: '2017-03-20', hasta: '2017-04-11', tasa: 17.00 },
+            { desde: '2017-04-12', hasta: '2017-09-10', tasa: 16.75 },
+            { desde: '2017-09-11', hasta: '2017-10-01', tasa: 17.25 },
+            { desde: '2017-10-02', hasta: '2017-10-26', tasa: 18.00 },
+            { desde: '2017-10-27', hasta: '2017-10-31', tasa: 18.50 },
+            { desde: '2017-11-01', hasta: '2017-11-09', tasa: 19.50 },
+            { desde: '2017-11-10', hasta: '2017-11-30', tasa: 21.00 },
+            { desde: '2017-12-01', hasta: '2018-01-30', tasa: 22.50 },
+            { desde: '2018-01-31', hasta: '2018-05-09', tasa: 22.00 },
+            { desde: '2018-05-10', hasta: '2018-05-14', tasa: 24.00 },
+            { desde: '2018-05-15', hasta: '2018-05-23', tasa: 26.00 },
+            { desde: '2018-05-24', hasta: '2018-06-24', tasa: 27.00 },
+            { desde: '2018-06-25', hasta: '2018-07-09', tasa: 30.00 },
+            { desde: '2018-07-10', hasta: '2018-09-03', tasa: 32.00 },
+            { desde: '2018-09-04', hasta: '2018-09-23', tasa: 37.00 },
+            { desde: '2018-09-24', hasta: '2019-02-06', tasa: 42.00 },
+            { desde: '2019-02-07', hasta: '2019-02-10', tasa: 38.50 },
+            { desde: '2019-02-11', hasta: '2019-02-13', tasa: 35.00 },
+            { desde: '2019-02-14', hasta: '2019-03-13', tasa: 32.00 },
+            { desde: '2019-03-14', hasta: '2019-03-17', tasa: 34.00 },
+            { desde: '2019-03-18', hasta: '2019-03-26', tasa: 36.00 },
+            { desde: '2019-03-27', hasta: '2019-04-09', tasa: 39.00 },
+            { desde: '2019-04-10', hasta: '2019-04-30', tasa: 41.00 },
+            { desde: '2019-05-01', hasta: '2019-06-06', tasa: 43.00 },
+            { desde: '2019-06-07', hasta: '2019-07-16', tasa: 46.00 },
+            { desde: '2019-07-17', hasta: '2019-08-12', tasa: 44.00 },
+            { desde: '2019-08-13', hasta: '2019-08-28', tasa: 48.00 },
+            { desde: '2019-08-29', hasta: '2019-10-30', tasa: 53.00 },
+            { desde: '2019-10-31', hasta: '2019-11-04', tasa: 50.00 },
+            { desde: '2019-11-05', hasta: '2019-11-12', tasa: 46.00 },
+            { desde: '2019-11-13', hasta: '2019-11-26', tasa: 44.50 },
+            { desde: '2019-11-27', hasta: '2019-12-09', tasa: 43.00 },
+            { desde: '2019-12-10', hasta: '2019-12-17', tasa: 41.00 },
+            { desde: '2019-12-18', hasta: '2020-01-01', tasa: 40.00 },
+            { desde: '2020-01-02', hasta: '2020-01-07', tasa: 38.00 },
+            { desde: '2020-01-08', hasta: '2020-01-14', tasa: 36.50 },
+            { desde: '2020-01-15', hasta: '2020-01-21', tasa: 35.00 },
+            { desde: '2020-01-22', hasta: '2020-01-30', tasa: 34.00 },
+            { desde: '2020-01-31', hasta: '2020-02-27', tasa: 33.00 },
+            { desde: '2020-02-28', hasta: '2020-03-03', tasa: 31.00 },
+            { desde: '2020-03-04', hasta: '2020-03-09', tasa: 29.00 },
+            { desde: '2020-03-10', hasta: '2020-04-01', tasa: 28.00 },
+            { desde: '2020-04-02', hasta: '2020-04-07', tasa: 27.00 },
+            { desde: '2020-04-08', hasta: '2020-04-08', tasa: 25.00 },
+            { desde: '2020-04-09', hasta: '2020-04-15', tasa: 22.00 },
+            { desde: '2020-04-16', hasta: '2020-04-19', tasa: 20.00 },
+            { desde: '2020-04-20', hasta: '2020-04-27', tasa: 26.60 },
+            { desde: '2020-04-28', hasta: '2020-05-17', tasa: 26.60 },
+            { desde: '2020-05-18', hasta: '2020-05-31', tasa: 26.60 },
+            { desde: '2020-06-01', hasta: '2020-07-31', tasa: 30.02 },
+            { desde: '2020-08-01', hasta: '2020-10-15', tasa: 33.06 },
+            { desde: '2020-10-16', hasta: '2020-11-12', tasa: 34.00 },
+            { desde: '2020-11-13', hasta: '2022-01-06', tasa: 37.00 },
+            { desde: '2022-01-07', hasta: '2022-02-17', tasa: 39.00 },
+            { desde: '2022-02-18', hasta: '2022-03-22', tasa: 41.50 },
+            { desde: '2022-03-23', hasta: '2022-04-17', tasa: 43.50 },
+            { desde: '2022-04-18', hasta: '2022-05-12', tasa: 46.00 },
+            { desde: '2022-05-13', hasta: '2022-06-20', tasa: 48.00 },
+            { desde: '2022-06-21', hasta: '2022-07-28', tasa: 53.00 },
+            { desde: '2022-07-29', hasta: '2022-08-11', tasa: 61.00 },
+            { desde: '2022-08-12', hasta: '2022-09-15', tasa: 69.50 },
+            { desde: '2022-09-16', hasta: '2023-03-16', tasa: 75.00 },
+            { desde: '2023-03-17', hasta: '2023-04-20', tasa: 78.00 },
+            { desde: '2023-04-21', hasta: '2023-04-27', tasa: 81.00 },
+            { desde: '2023-04-28', hasta: '2023-05-15', tasa: 91.00 },
+            { desde: '2023-05-16', hasta: '2023-08-14', tasa: 97.00 },
+            { desde: '2023-08-15', hasta: '2023-10-16', tasa: 118.00 },
+            { desde: '2023-10-17', hasta: '2023-12-18', tasa: 133.00 },
+            { desde: '2023-12-19', hasta: '2024-03-11', tasa: 110.00 },
+            { desde: '2024-03-12', hasta: '2024-03-12', tasa: 75.00 },
+            { desde: '2024-03-13', hasta: '2024-03-25', tasa: 70.00 },
+            { desde: '2024-03-26', hasta: '2024-04-10', tasa: 50.00 },
+            { desde: '2024-04-11', hasta: '2024-04-25', tasa: 60.00 },
+            { desde: '2024-04-26', hasta: '2024-05-01', tasa: 50.00 },
+            { desde: '2024-05-02', hasta: '2024-05-14', tasa: 40.00 },
+            { desde: '2024-05-15', hasta: '2024-06-23', tasa: 30.00 },
+            { desde: '2024-06-24', hasta: '2024-07-29', tasa: 33.00 },
+            { desde: '2024-07-30', hasta: '2024-08-15', tasa: 35.00 },
+            { desde: '2024-08-16', hasta: '2024-10-31', tasa: 36.50 },
+            { desde: '2024-11-01', hasta: '2024-12-05', tasa: 33.50 },
+            { desde: '2024-12-06', hasta: '2025-01-23', tasa: 30.50 },
+            { desde: '2025-01-24', hasta: '2025-01-30', tasa: 29.50 },
+            { desde: '2025-01-31', hasta: '2025-08-22', tasa: 27.50 }
+        ];
+
+        // Variables globales para almacenar los resultados
+        let resultadosCalculo = {
+            caratula: '',
+            monto: 0,
+            fechaHecho: '',
+            fechaDeterminacion: '',
+            fechaPago: '',
+            diasPeriodo1: 0,
+            intereses1: 0,
+            montoCapitalizado: 0,
+            diasPeriodo2: 0,
+            intereses2: 0,
+            interesesTotal: 0,
+            montoTotal: 0,
+            detallesPeriodos: []
+        };
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Establecer fechas por defecto
+            const today = new Date();
+            const formattedDate = today.toISOString().split('T')[0];
+            
+            // Fecha de hecho (hace 1 año)
+            const oneYearAgo = new Date();
+            oneYearAgo.setFullYear(today.getFullYear() - 1);
+            
+            // Fecha de determinación (hace 6 meses)
+            const sixMonthsAgo = new Date();
+            sixMonthsAgo.setMonth(today.getMonth() - 6);
+            
+            document.getElementById('fechaHecho').value = oneYearAgo.toISOString().split('T')[0];
+            document.getElementById('fechaDeterminacion').value = sixMonthsAgo.toISOString().split('T')[0];
+            document.getElementById('fechaPago').value = formattedDate;
+            
+            // Manejar el envío del formulario
+            document.getElementById('interest-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                calcularIntereses();
+            });
+            
+            // Manejar el botón de exportación a PDF
+            document.getElementById('export-pdf').addEventListener('click', function() {
+                exportarPDF();
+            });
+        });
+        
+        function calcularIntereses() {
+            // Obtener valores del formulario
+            const caratula = document.getElementById('caratula').value;
+            const monto = parseFloat(document.getElementById('monto').value);
+            const fechaHecho = new Date(document.getElementById('fechaHecho').value);
+            const fechaDeterminacion = new Date(document.getElementById('fechaDeterminacion').value);
+            const fechaPago = new Date(document.getElementById('fechaPago').value);
+            
+            // Validaciones
+            if (!monto || isNaN(monto) || !fechaHecho || !fechaDeterminacion || !fechaPago) {
+                alert("Por favor, complete todos los campos correctamente.");
+                return;
+            }
+            
+            if (fechaHecho >= fechaDeterminacion) {
+                alert("La fecha de determinación/sentencia debe ser posterior a la fecha del hecho.");
+                return;
+            }
+            
+            if (fechaDeterminacion >= fechaPago) {
+                alert("La fecha de pago debe ser posterior a la fecha de determinación/sentencia.");
+                return;
+            }
+            
+            // Calcular días del período 1 (incluyendo la fecha de determinación)
+            const diasPeriodo1 = Math.floor((fechaDeterminacion - fechaHecho) / (1000 * 60 * 60 * 24)) + 1;
+            
+            // Calcular intereses del período 1 (6% anual)
+            const tasaDiaria1 = 0.06 / 365;
+            const intereses1 = monto * tasaDiaria1 * diasPeriodo1;
+            
+            // Capitalizar intereses del primer período
+            const montoCapitalizado = monto + intereses1;
+            
+            // Calcular intereses del período 2 (Tasa BPBA sobre monto capitalizado)
+            // Para el período 2, la fecha de determinación es el día inicial
+            const periodosAplicables = obtenerPeriodosAplicables(fechaDeterminacion, fechaPago);
+            let intereses2 = 0;
+            const diasPeriodo2 = Math.floor((fechaPago - fechaDeterminacion) / (1000 * 60 * 60 * 24)) + 1;
+            const detallesPeriodos = [];
+            
+            // El capital para todo el período 2 es el montoCapitalizado (fijo, no se capitaliza dentro del período 2)
+            const capitalPeriodo2 = montoCapitalizado;
+            
+            for (const periodo of periodosAplicables) {
+                // Calcular días del período
+                const fechaInicioPeriodo = new Date(periodo.desde);
+                const fechaFinPeriodo = new Date(periodo.hasta);
+                
+                // Ajustar fechas según el rango solicitado por el usuario
+                const inicioCalc = fechaInicioPeriodo < fechaDeterminacion ? fechaDeterminacion : fechaInicioPeriodo;
+                const finCalc = fechaFinPeriodo > fechaPago ? fechaPago : fechaFinPeriodo;
+                
+                // Calcular días incluyendo el día inicial
+                const diasPeriodo = Math.max(0, Math.floor((finCalc - inicioCalc) / (1000 * 60 * 60 * 24)) + 1);
+                if (diasPeriodo === 0) continue;
+                
+                // Calcular interés del período (sobre el capitalPeriodo2, que es fijo)
+                const tasaDiaria2 = periodo.tasa / 100 / 365;
+                const interesPeriodo = capitalPeriodo2 * tasaDiaria2 * diasPeriodo;
+                
+                // Acumular intereses del período 2
+                intereses2 += interesPeriodo;
+                
+                // Guardar detalles del período
+                detallesPeriodos.push({
+                    desde: inicioCalc.toISOString().split('T')[0],
+                    hasta: finCalc.toISOString().split('T')[0],
+                    tasa: periodo.tasa,
+                    dias: diasPeriodo,
+                    interes: interesPeriodo
+                });
+            }
+            
+            // Calcular totales
+            const interesesTotal = intereses1 + intereses2;
+            const montoTotal = capitalPeriodo2 + intereses2; // o montoCapitalizado + intereses2
+            
+            // Guardar resultados en variables globales
+            resultadosCalculo = {
+                caratula: caratula || 'Sin carátula',
+                monto: monto,
+                fechaHecho: formatearFecha(fechaHecho.toISOString().split('T')[0]),
+                fechaDeterminacion: formatearFecha(fechaDeterminacion.toISOString().split('T')[0]),
+                fechaPago: formatearFecha(fechaPago.toISOString().split('T')[0]),
+                diasPeriodo1: diasPeriodo1,
+                intereses1: intereses1,
+                montoCapitalizado: montoCapitalizado,
+                diasPeriodo2: diasPeriodo2,
+                intereses2: intereses2,
+                interesesTotal: interesesTotal,
+                montoTotal: montoTotal,
+                detallesPeriodos: detallesPeriodos
+            };
+            
+            // Mostrar resultados
+            document.getElementById('res-caratula').textContent = resultadosCalculo.caratula;
+            document.getElementById('res-monto').textContent = `$${resultadosCalculo.monto.toFixed(2)}`;
+            document.getElementById('res-dias-periodo1').textContent = `${resultadosCalculo.diasPeriodo1} días`;
+            document.getElementById('res-intereses1').textContent = `$${resultadosCalculo.intereses1.toFixed(2)}`;
+            document.getElementById('res-capitalizado').textContent = `$${resultadosCalculo.montoCapitalizado.toFixed(2)}`;
+            document.getElementById('res-dias-periodo2').textContent = `${resultadosCalculo.diasPeriodo2} días`;
+            document.getElementById('res-intereses2').textContent = `$${resultadosCalculo.intereses2.toFixed(2)}`;
+            document.getElementById('res-intereses-total').textContent = `$${resultadosCalculo.interesesTotal.toFixed(2)}`;
+            document.getElementById('res-total').textContent = `$${resultadosCalculo.montoTotal.toFixed(2)}`;
+            
+            // Mostrar detalles de períodos
+            const periodDetails = document.getElementById('period-details');
+            periodDetails.innerHTML = '';
+            
+            resultadosCalculo.detallesPeriodos.forEach(periodo => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${formatearFecha(periodo.desde)}</td>
+                    <td>${formatearFecha(periodo.hasta)}</td>
+                    <td>${periodo.tasa.toFixed(2)}%</td>
+                    <td>${periodo.dias}</td>
+                    <td>$${periodo.interes.toFixed(2)}</td>
+                `;
+                periodDetails.appendChild(row);
+            });
+            
+            document.getElementById('resultado').style.display = 'block';
+            document.getElementById('detailed-results').style.display = 'block';
+        }
+        
+        function obtenerPeriodosAplicables(fechaInicio, fechaFin) {
+            // Filtrar los períodos que se superponen con el rango de fechas
+            return tasasBPBA.filter(periodo => {
+                const inicioPeriodo = new Date(periodo.desde);
+                const finPeriodo = new Date(periodo.hasta);
+                return inicioPeriodo <= fechaFin && finPeriodo >= fechaInicio;
+            });
+        }
+        
+        function formatearFecha(fechaStr) {
+            const fecha = new Date(fechaStr);
+            return fecha.toLocaleDateString('es-AR');
+        }
+        
+        function exportarPDF() {
+            // Verificar si hay resultados para exportar
+            if (resultadosCalculo.monto === 0) {
+                alert("Primero debe realizar un cálculo de intereses.");
+                return;
+            }
+            
+            // Crear instancia de jsPDF
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            // Configurar fuente
+            doc.setFont('helvetica');
+            
+            // Título
+            doc.setFontSize(18);
+            doc.text('Cálculo de Intereses Judiciales', 105, 20, { align: 'center' });
+            
+            // Carátula
+            doc.setFontSize(12);
+            doc.text(`Carátula: ${resultadosCalculo.caratula}`, 20, 35);
+            
+            // Fechas
+            doc.text(`Fecha del Hecho: ${resultadosCalculo.fechaHecho}`, 20, 45);
+            doc.text(`Fecha de Determinación: ${resultadosCalculo.fechaDeterminacion}`, 20, 52);
+            doc.text(`Fecha de Pago: ${resultadosCalculo.fechaPago}`, 20, 59);
+            
+            // Resultados principales
+            doc.setFontSize(14);
+            doc.text('Resultados del Cálculo', 20, 75);
+            
+            doc.setFontSize(12);
+            doc.text(`Monto Principal: $${resultadosCalculo.monto.toFixed(2)}`, 20, 85);
+            doc.text(`Total Intereses: $${resultadosCalculo.interesesTotal.toFixed(2)}`, 20, 92);
+            doc.text(`Total a Reclamar: $${resultadosCalculo.montoTotal.toFixed(2)}`, 20, 99);
+            
+            // Detalle por períodos
+            doc.setFontSize(14);
+            doc.text('Detalle por Períodos', 20, 115);
+            
+            doc.setFontSize(12);
+            doc.text('Período 1: 6% anual', 20, 125);
+            doc.text(`Días: ${resultadosCalculo.diasPeriodo1}`, 25, 132);
+            doc.text(`Intereses generados: $${resultadosCalculo.intereses1.toFixed(2)}`, 25, 139);
+            doc.text(`Total capitalizado: $${resultadosCalculo.montoCapitalizado.toFixed(2)}`, 25, 146);
+            
+            doc.text('Período 2: Tasa BPBA', 20, 158);
+            doc.text(`Días: ${resultadosCalculo.diasPeriodo2}`, 25, 165);
+            doc.text(`Intereses generados: $${resultadosCalculo.intereses2.toFixed(2)}`, 25, 172);
+            
+            // Tabla de detalles de tasas BPBA
+            if (resultadosCalculo.detallesPeriodos.length > 0) {
+                doc.setFontSize(14);
+                doc.text('Detalle de Tasas BPBA', 20, 190);
+                
+                // Preparar datos para la tabla
+                const tableData = resultadosCalculo.detallesPeriodos.map(periodo => [
+                    periodo.desde,
+                    periodo.hasta,
+                    `${periodo.tasa.toFixed(2)}%`,
+                    periodo.dias.toString(),
+                    `$${periodo.interes.toFixed(2)}`
+                ]);
+                
+                // Agregar tabla
+                doc.autoTable({
+                    head: [['Desde', 'Hasta', 'Tasa Anual', 'Días', 'Interés']],
+                    body: tableData,
+                    startY: 200,
+                    theme: 'grid',
+                    headStyles: { fillColor: [52, 152, 219] },
+                    styles: { fontSize: 10 }
+                });
+            }
+            
+            // Fecha de generación
+            const fechaGeneracion = new Date().toLocaleDateString('es-AR');
+            doc.setFontSize(10);
+            doc.text(`Generado el: ${fechaGeneracion}`, 20, doc.internal.pageSize.height - 20);
+            
+            // Guardar el PDF
+            const nombreArchivo = `Intereses_Judiciales_${resultadosCalculo.caratula.replace(/[^a-zA-Z0-9]/g, '_')}.pdf`;
+            doc.save(nombreArchivo);
+        }
+    </script>
+</body>
+</html>
