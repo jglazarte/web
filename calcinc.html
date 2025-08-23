@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Indemnización por Incapacidad</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --success-color: #27ae60;
+            --danger-color: #e74c3c;
+            --light-bg: #ecf0f1;
+            --card-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 20px 0;
+        }
+
+        .main-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .calculator-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: var(--card-shadow);
+            overflow: hidden;
+            transition: transform 0.3s ease;
+        }
+
+        .calculator-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .header-section {
+            background: var(--primary-color);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header-section h1 {
+            margin: 0;
+            font-size: 2.5rem;
+            font-weight: 300;
+        }
+
+        .header-section p {
+            margin: 10px 0 0;
+            opacity: 0.9;
+        }
+
+        .form-section {
+            padding: 40px;
+        }
+
+        .input-group-custom {
+            margin-bottom: 25px;
+        }
+
+        .input-group-custom label {
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .input-group-custom .input-group {
+            position: relative;
+        }
+
+        .input-group-custom .form-control {
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 15px 20px;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+        }
+
+        .input-group-custom .form-control:focus {
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+        }
+
+        .input-group-text {
+            background: var(--light-bg);
+            border: 2px solid #e0e0e0;
+            border-radius: 10px 0 0 10px;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .calculate-btn {
+            background: var(--secondary-color);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            border-radius: 50px;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .calculate-btn:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
+        }
+
+        .export-btn {
+            background: var(--success-color);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 50px;
+            transition: all 0.3s ease;
+            margin-left: 10px;
+        }
+
+        .export-btn:hover {
+            background: #229954;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(39, 174, 96, 0.3);
+        }
+
+        .result-section {
+            background: var(--light-bg);
+            padding: 40px;
+            display: none;
+        }
+
+        .result-card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            box-shadow: var(--card-shadow);
+        }
+
+        .result-amount {
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--success-color);
+            margin: 20px 0;
+        }
+
+        .formula-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 30px;
+            margin-top: 30px;
+        }
+
+        .formula-section h3 {
+            color: var(--primary-color);
+            margin-bottom: 20px;
+        }
+
+        .formula {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 1.1rem;
+            text-align: center;
+            margin: 20px 0;
+            border: 2px solid #e0e0e0;
+        }
+
+        .variables {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+
+        .variables ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .variables li {
+            padding: 8px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .variables li:last-child {
+            border-bottom: none;
+        }
+
+        .variables strong {
+            color: var(--secondary-color);
+        }
+
+        .error-message {
+            background: #fee;
+            color: var(--danger-color);
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            display: none;
+            border-left: 4px solid var(--danger-color);
+        }
+
+        .calculation-details {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            font-size: 0.95rem;
+        }
+
+        .calculation-details .detail-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .calculation-details .detail-item:last-child {
+            border-bottom: none;
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: var(--success-color);
+        }
+
+        .button-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .header-section h1 {
+                font-size: 2rem;
+            }
+            
+            .form-section, .result-section {
+                padding: 20px;
+            }
+            
+            .result-amount {
+                font-size: 2rem;
+            }
+
+            .button-container {
+                flex-direction: column;
+            }
+
+            .export-btn {
+                margin-left: 0;
+                margin-top: 10px;
+                width: 100%;
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .loading {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .spinner-border {
+            width: 2rem;
+            height: 2rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <div class="calculator-card">
+            <div class="header-section">
+                <h1><i class="bi bi-calculator"></i> Calculadora de Indemnización por Incapacidad</h1>
+                <p>Complete los datos que a continuación se indican</p>
+            </div>
+
+            <div class="form-section">
+                <form id="calculatorForm">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="input-group-custom">
+                                <label for="edad">Edad al momento del accidente</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="bi bi-person"></i></span>
+                                    <input type="number" class="form-control" id="edad" min="1" max="69" required placeholder="Ej: 35">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <div class="input-group-custom">
+                                <label for="ingreso">Ingreso mensual</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">$</span>
+                                    <input type="number" class="form-control" id="ingreso" min="0" step="0.01" required placeholder="Ej: 5000">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <div class="input-group-custom">
+                                <label for="incapacidad">Porcentaje de incapacidad</label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control" id="incapacidad" min="0" max="100" step="0.1" required placeholder="Ej: 30">
+                                    <span class="input-group-text">%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Nuevo campo para la carátula del expediente -->
+                    <div class="row mt-3">
+                        <div class="col-md-12">
+                            <div class="input-group-custom">
+                                <label for="caratula">Carátula del expediente (opcional)</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="bi bi-file-text"></i></span>
+                                    <input type="text" class="form-control" id="caratula" placeholder="Ej: 'Juan Pérez s/ Accidente de Trabajo'">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="button-container">
+                        <button type="submit" class="calculate-btn">
+                            <i class="bi bi-calculator-fill"></i> Calcular 
+                        </button>
+                        <button type="button" class="export-btn" id="exportBtn" onclick="exportarPDF()" style="display: none;">
+                            <i class="bi bi-file-earmark-pdf"></i> Exportar PDF
+                        </button>
+                    </div>
+
+                    <div class="error-message" id="errorMessage"></div>
+                </form>
+            </div>
+
+            <div class="result-section" id="resultSection">
+                <div class="result-card fade-in">
+                    <h3 class="mb-4">Monto de Indemnización</h3>
+                    <div class="result-amount" id="resultAmount">$0</div>
+                    <p class="text-muted">Capital calculado según la fórmula de renta constante no perpetua</p>
+                    
+                    <div class="calculation-details" id="calculationDetails"></div>
+                </div>
+            </div>
+
+            <div class="formula-section">
+                <h3><i class="bi bi-file-earmark-text"></i> Fórmula de Cálculo</h3>
+                <div class="formula">
+                    C = {A × [(1 + i)ⁿ - 1] / [i × (1 + i)ⁿ]} × P/100
+                </div>
+                
+                <div class="variables">
+                    <h5>Variables:</h5>
+                    <ul>
+                        <li><strong>C:</strong> Capital a calcular (Indemnización)</li>
+                        <li><strong>A:</strong> Ingreso mensual × 13</li>
+                        <li><strong>i:</strong> Tasa de descuento (4% anual = 0.04)</li>
+                        <li><strong>n:</strong> 70 - Edad al momento del accidente</li>
+                        <li><strong>P:</strong> Porcentaje de incapacidad</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="loading" id="loading">
+        <div class="d-flex align-items-center">
+            <div class="spinner-border text-primary me-3" role="status">
+                <span class="visually-hidden">Cargando...</span>
+            </div>
+            <span>Generando PDF...</span>
+        </div>
+    </div>
+
+    <script>
+        // Variable para almacenar los datos del cálculo actual
+        let datosCalculo = {};
+
+        document.getElementById('calculatorForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Obtener valores
+            const edad = parseFloat(document.getElementById('edad').value);
+            const ingreso = parseFloat(document.getElementById('ingreso').value);
+            const incapacidad = parseFloat(document.getElementById('incapacidad').value);
+            const caratula = document.getElementById('caratula').value; // Nuevo campo
+            
+            // Validar datos
+            const errorMessage = document.getElementById('errorMessage');
+            errorMessage.style.display = 'none';
+            
+            if (edad >= 70) {
+                showError('La edad debe ser menor a 70 años');
+                return;
+            }
+            
+            if (ingreso <= 0) {
+                showError('El ingreso mensual debe ser mayor a 0');
+                return;
+            }
+            
+            if (incapacidad < 0 || incapacidad > 100) {
+                showError('El porcentaje de incapacidad debe estar entre 0 y 100');
+                return;
+            }
+            
+            // Calcular
+            const A = ingreso * 13;
+            const i = 0.04;
+            const n = 70 - edad;
+            
+            // Calcular la parte exponencial
+            const pow = Math.pow(1 + i, n);
+            
+            // Aplicar la fórmula
+            const C = (A * (pow - 1) / (i * pow)) * (incapacidad / 100);
+            
+            // Guardar datos para exportación
+            datosCalculo = {
+                edad: edad,
+                ingreso: ingreso,
+                incapacidad: incapacidad,
+                caratula: caratula, // Agregar carátula
+                A: A,
+                i: i,
+                n: n,
+                pow: pow,
+                C: C
+            };
+            
+            // Mostrar resultados
+            showResults(C, A, i, n, incapacidad, ingreso, caratula);
+        });
+        
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+            document.getElementById('resultSection').style.display = 'none';
+            document.getElementById('exportBtn').style.display = 'none';
+        }
+        
+        function showResults(C, A, i, n, incapacidad, ingreso, caratula) {
+            const resultSection = document.getElementById('resultSection');
+            const resultAmount = document.getElementById('resultAmount');
+            const calculationDetails = document.getElementById('calculationDetails');
+            const exportBtn = document.getElementById('exportBtn');
+            
+            // Formatear monto
+            resultAmount.textContent = '$' + C.toLocaleString('es-ES', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+            
+            // Mostrar detalles del cálculo
+            let detallesHTML = `
+                <div class="detail-item">
+                    <span>Ingreso mensual:</span>
+                    <span>$${ingreso.toLocaleString('es-ES', {minimumFractionDigits: 2})}</span>
+                </div>
+                <div class="detail-item">
+                    <span>A (Ingreso anualizado):</span>
+                    <span>$${A.toLocaleString('es-ES', {minimumFractionDigits: 2})}</span>
+                </div>
+                <div class="detail-item">
+                    <span>n (Años hasta los 70):</span>
+                    <span>${n} años</span>
+                </div>
+                <div class="detail-item">
+                    <span>i (Tasa de descuento):</span>
+                    <span>${(i * 100).toFixed(0)}% anual</span>
+                </div>
+                <div class="detail-item">
+                    <span>Porcentaje de incapacidad:</span>
+                    <span>${incapacidad}%</span>
+                </div>
+            `;
+            
+            // Agregar carátula si existe
+            if (caratula && caratula.trim() !== '') {
+                detallesHTML += `
+                    <div class="detail-item">
+                        <span>Carátula del expediente:</span>
+                        <span>${caratula}</span>
+                    </div>
+                `;
+            }
+            
+            detallesHTML += `
+                <div class="detail-item">
+                    <span>Indemnización Total:</span>
+                    <span>$${C.toLocaleString('es-ES', {minimumFractionDigits: 2})}</span>
+                </div>
+            `;
+            
+            calculationDetails.innerHTML = detallesHTML;
+            
+            resultSection.style.display = 'block';
+            exportBtn.style.display = 'inline-block';
+            resultSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+        
+        // Limpiar errores al escribir
+        document.querySelectorAll('input').forEach(input => {
+            input.addEventListener('input', function() {
+                document.getElementById('errorMessage').style.display = 'none';
+            });
+        });
+
+        function exportarPDF() {
+            // Mostrar indicador de carga
+            document.getElementById('loading').classList.add('show');
+
+            try {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+
+                // Configuración de fuentes
+                doc.setFont("helvetica");
+                
+                // Encabezado profesional
+                doc.setFontSize(20);
+                doc.setTextColor(44, 62, 80);
+                doc.text('DICTAMEN DE INDEMNIZACIÓN POR INCAPACIDAD', 105, 20, { align: 'center' });
+                
+                // Subtítulo
+                doc.setFontSize(12);
+                doc.setTextColor(100, 100, 100);
+                doc.text('Cálculo según fórmula de renta constante no perpetua', 105, 30, { align: 'center' });
+                
+                // Fecha y hora
+                const fecha = new Date();
+                doc.setFontSize(10);
+                doc.text(`Fecha: ${fecha.toLocaleDateString('es-AR')} ${fecha.toLocaleTimeString('es-AR')}`, 105, 40, { align: 'center' });
+                
+                // Agregar carátula si existe
+                if (datosCalculo.caratula && datosCalculo.caratula.trim() !== '') {
+                    doc.setFontSize(12);
+                    doc.setTextColor(52, 152, 219);
+                    doc.text(`Expediente: ${datosCalculo.caratula}`, 105, 50, { align: 'center' });
+                    // Ajustamos la posición de la línea separadora
+                    doc.setDrawColor(52, 152, 219);
+                    doc.setLineWidth(0.5);
+                    doc.line(20, 55, 190, 55);
+                } else {
+                    // Línea separadora sin carátula
+                    doc.setDrawColor(52, 152, 219);
+                    doc.setLineWidth(0.5);
+                    doc.line(20, 45, 190, 45);
+                }
+                
+                // Determinar la posición Y inicial según si hay carátula o no
+                let yPos = datosCalculo.caratula && datosCalculo.caratula.trim() !== '' ? 70 : 60;
+                
+                // Resultado principal
+                doc.setFontSize(16);
+                doc.setTextColor(44, 62, 80);
+                doc.text('Resultado del Cálculo', 20, yPos);
+                yPos += 10;
+                
+                doc.setFontSize(12);
+                doc.setTextColor(0, 0, 0);
+                doc.text(`Edad al momento del accidente: ${datosCalculo.edad} años`, 20, yPos);
+                yPos += 10;
+                doc.text(`Ingreso mensual: $${datosCalculo.ingreso.toLocaleString('es-ES', {minimumFractionDigits: 2})}`, 20, yPos);
+                yPos += 10;
+                doc.text(`Porcentaje de incapacidad: ${datosCalculo.incapacidad}%`, 20, yPos);
+                yPos += 10;
+                doc.text(`Indemnización Calculada (C): $${datosCalculo.C.toLocaleString('es-ES', {minimumFractionDigits: 2})}`, 20, yPos);
+                yPos += 20;
+                
+                // Detalle del cálculo
+                doc.setFontSize(16);
+                doc.setTextColor(44, 62, 80);
+                doc.text('Detalle del Cálculo', 20, yPos);
+                yPos += 10;
+                
+                doc.setFontSize(11);
+                doc.setTextColor(0, 0, 0);
+                doc.text(`A (Ingreso anualizado): $${datosCalculo.ingreso} × 13 = $${datosCalculo.A.toLocaleString('es-ES', {minimumFractionDigits: 2})}`, 20, yPos);
+                yPos += 10;
+                doc.text(`i (Tasa de descuento): ${(datosCalculo.i * 100).toFixed(0)}% anual = ${datosCalculo.i}`, 20, yPos);
+                yPos += 10;
+                doc.text(`n (Años hasta los 70): 70 - ${datosCalculo.edad} = ${datosCalculo.n} años`, 20, yPos);
+                yPos += 10;
+                doc.text(`(1 + i)ⁿ = (1 + ${datosCalculo.i})^${datosCalculo.n} = ${datosCalculo.pow.toFixed(6)}`, 20, yPos);
+                yPos += 20;
+                
+                // Fórmula aplicada
+                doc.setFontSize(16);
+                doc.setTextColor(44, 62, 80);
+                doc.text('Fórmula Aplicada', 20, yPos);
+                yPos += 10;
+                
+                doc.setFontSize(11);
+                doc.setTextColor(0, 0, 0);
+                doc.text('C = {A × [(1 + i)ⁿ - 1] / [i × (1 + i)ⁿ]} × P/100', 20, yPos);
+                yPos += 10;
+                doc.text(`C = {${datosCalculo.A.toLocaleString('es-ES', {minimumFractionDigits: 2})} × [${datosCalculo.pow.toFixed(6)} - 1] / [${datosCalculo.i} × ${datosCalculo.pow.toFixed(6)}]} × ${datosCalculo.incapacidad}/100`, 20, yPos);
+                yPos += 10;
+                doc.text(`C = $${datosCalculo.C.toLocaleString('es-ES', {minimumFractionDigits: 2})}`, 20, yPos);
+                yPos += 20;
+                
+                // Variables explicadas
+                doc.setFontSize(16);
+                doc.setTextColor(44, 62, 80);
+                doc.text('Variables de la Fórmula', 20, yPos);
+                yPos += 10;
+                
+                doc.setFontSize(11);
+                doc.setTextColor(0, 0, 0);
+                doc.text('C: Capital a calcular (Indemnización)', 20, yPos);
+                yPos += 10;
+                doc.text('A: Ingreso mensual anualizado (Ingreso mensual × 13)', 20, yPos);
+                yPos += 10;
+                doc.text('i: Tasa de descuento (4% anual)', 20, yPos);
+                yPos += 10;
+                doc.text('n: Años hasta los 70 (70 - Edad)', 20, yPos);
+                yPos += 10;
+                doc.text('P: Porcentaje de incapacidad', 20, yPos);
+                
+                // Guardar el PDF
+                doc.save(`indemnizacion_incapacidad_${fecha.getTime()}.pdf`);
+                
+            } catch (error) {
+                console.error('Error al generar PDF:', error);
+                alert('Error al generar el PDF. Por favor, intente nuevamente.');
+            } finally {
+                // Ocultar indicador de carga
+                document.getElementById('loading').classList.remove('show');
+            }
+        }
+    </script>
+</body>
+</html>
