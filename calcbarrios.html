@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Actualización de Montos - Fallo Barrios</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #1a3a5f;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+            --light-color: #f8f9fa;
+            --dark-color: #343a40;
+            --success-color: #2ecc71;
+            --warning-color: #f39c12;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f7fa;
+            color: var(--dark-color);
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 1.8rem;
+            margin-bottom: 5px;
+        }
+
+        header p {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+
+        input:focus {
+            border-color: var(--secondary-color);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        }
+
+        button {
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 25px auto 0;
+        }
+
+        button:hover {
+            background-color: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        button i {
+            margin-right: 8px;
+        }
+
+        .btn-export {
+            background-color: var(--success-color);
+            margin-top: 15px;
+        }
+
+        .btn-export:hover {
+            background-color: #27ae60;
+        }
+
+        .results-container {
+            margin-top: 30px;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            display: none;
+        }
+
+        .results-header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 15px 20px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+        }
+
+        .results-header i {
+            margin-right: 10px;
+        }
+
+        .results-content {
+            background-color: white;
+            padding: 20px;
+        }
+
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .result-item:last-child {
+            border-bottom: none;
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: var(--primary-color);
+            margin-top: 10px;
+            padding-top: 15px;
+            border-top: 2px solid #eee;
+        }
+
+        .result-label {
+            font-weight: 600;
+        }
+
+        .result-value {
+            font-weight: 500;
+        }
+
+        .error-container {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #fdecea;
+            border-left: 4px solid var(--accent-color);
+            border-radius: 4px;
+            color: var(--accent-color);
+            display: none;
+        }
+
+        .error-container i {
+            margin-right: 10px;
+        }
+
+        .info-box {
+            background-color: #e8f4fc;
+            border-left: 4px solid var(--secondary-color);
+            padding: 15px;
+            margin-bottom: 25px;
+            border-radius: 4px;
+        }
+
+        .info-box p {
+            margin: 0;
+            font-size: 0.95rem;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .loading i {
+            font-size: 2rem;
+            color: var(--secondary-color);
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .header-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .header-info h2 {
+            color: var(--primary-color);
+            font-size: 1.4rem;
+        }
+
+        .header-info .caratula {
+            font-weight: 600;
+            color: var(--dark-color);
+        }
+
+        @media (max-width: 600px) {
+            header h1 {
+                font-size: 1.5rem;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+            
+            .result-item {
+                flex-direction: column;
+            }
+            
+            .result-value {
+                margin-top: 5px;
+                text-align: right;
+            }
+
+            .header-info {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .header-info .caratula {
+                margin-top: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Calculadora de Actualización de Montos</h1>
+            <p>Basada en la doctrina del fallo Barrios de la SCBA</p>
+        </header>
+        
+        <div class="content">
+            <div class="info-box">
+                <p><i class="fas fa-info-circle"></i> Esta calculadora actualiza un monto según IPC, CER, RIPTE y Dólar Blue. Ingresa las fechas en formato dd/mm/aaaa. </p>
+                <p> Si las fechas son muy antiguas podría no haber datos (IPC desde 2016, CER desde 2002, RIPTE desde ~2000, blue desde ~2011).</p>
+            </div>
+            
+            <form id="formulario">
+                <div class="form-group">
+                    <label for="caratula">Carátula (opcional):</label>
+                    <input type="text" id="caratula" placeholder="Ingrese el nombre del expediente">
+                </div>
+                
+                <div class="form-group">
+                    <label for="monto">Monto inicial:</label>
+                    <input type="number" id="monto" placeholder="Ingrese el monto inicial" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="fecha-inicio">Fecha de inicio (dd/mm/aaaa):</label>
+                    <input type="date" id="fecha-inicio" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="fecha-fin">Fecha de fin (dd/mm/aaaa):</label>
+                    <input type="date" id="fecha-fin" required>
+                </div>
+                
+                <button type="submit">
+                    <i class="fas fa-calculator"></i> Calcular Actualización
+                </button>
+            </form>
+            
+            <div class="loading" id="loading">
+                <i class="fas fa-spinner"></i>
+                <p>Calculando actualizaciones...</p>
+            </div>
+            
+            <div class="results-container" id="resultados">
+                <div class="results-header">
+                    <i class="fas fa-chart-line"></i> Resultados de la Actualización
+                </div>
+                <div class="results-content">
+                    <div class="header-info">
+                        <h2>Resumen de Cálculo</h2>
+                        <div class="caratula" id="caratula-display">Carátula: -</div>
+                    </div>
+                    
+                    <div class="result-item">
+                        <span class="result-label">Monto inicial:</span>
+                        <span class="result-value" id="monto-inicial">$0.00</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">Fecha de inicio:</span>
+                        <span class="result-value" id="fecha-inicio-display">-</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">Fecha de fin:</span>
+                        <span class="result-value" id="fecha-fin-display">-</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">Actualización por IPC:</span>
+                        <span class="result-value" id="ipc">$0.00</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">Actualización por CER:</span>
+                        <span class="result-value" id="cer">$0.00</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">Actualización por RIPTE:</span>
+                        <span class="result-value" id="ripte">$0.00</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">Actualización por Dólar Blue:</span>
+                        <span class="result-value" id="blue">$0.00</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">Promedio de actualizaciones:</span>
+                        <span class="result-value" id="promedio">$0.00</span>
+                    </div>
+                    
+                    <button type="button" class="btn-export" id="exportar-pdf">
+                        <i class="fas fa-file-pdf"></i> Exportar a PDF
+                    </button>
+                </div>
+            </div>
+            
+            <div class="error-container" id="error">
+                <i class="fas fa-exclamation-triangle"></i>
+                <span id="error-message"></span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // IDs de las series en la API de Series de Tiempo de Argentina
+        const SERIES_IPC = '148.3_INIVELNAL_DICI_M_26';    // IPC Nivel General Nacional (mensual, base dic 2016=100)
+        const SERIES_CER = '94.2_CD_D_0_0_10';             // CER diario
+        const SERIES_RIPTE = '158.1_REPTE_0_0_5';          // RIPTE (mensual)
+
+        async function getIndexValue(seriesId, targetDate) {
+            try {
+                const dt = new Date(targetDate);
+                const start = new Date(dt);
+                start.setDate(start.getDate() - 90);
+                const end = new Date(dt);
+                end.setDate(end.getDate() + 90);
+                
+                const startStr = start.toISOString().split('T')[0];
+                const endStr = end.toISOString().split('T')[0];
+                
+                const url = `https://apis.datos.gob.ar/series/api/series/?ids=${seriesId}&start_date=${startStr}&end_date=${endStr}&format=json&limit=1000`;
+                const resp = await fetch(url);
+                if (!resp.ok) throw new Error(`HTTP error: ${resp.status}`);
+                
+                const json = await resp.json();
+                const data = json.data;
+                if (!data || data.length === 0) {
+                    throw new Error(`No hay datos disponibles para ${seriesId} cerca de ${targetDate}`);
+                }
+                
+                // Filtrar fechas <= targetDate y seleccionar la más reciente
+                const candidates = data.filter(([d]) => d <= targetDate).sort(([a], [b]) => a.localeCompare(b));
+                if (candidates.length === 0) {
+                    throw new Error(`No hay datos antes de ${targetDate} para ${seriesId}`);
+                }
+                
+                return candidates[candidates.length - 1][1];
+            } catch (e) {
+                throw new Error(`Error al obtener ${seriesId} para ${targetDate}: ${e.message}`);
+            }
+        }
+
+        async function getBlueValue(targetDate) {
+            try {
+                const url = 'https://api.bluelytics.com.ar/v2/evolution.json';
+                const resp = await fetch(url);
+                if (!resp.ok) throw new Error(`HTTP error: ${resp.status}`);
+                
+                const data = await resp.json();
+                const candidates = data.filter(row => row.source === 'Blue' && row.date <= targetDate)
+                                       .sort((a, b) => a.date.localeCompare(b.date));
+                if (candidates.length === 0) {
+                    throw new Error(`No hay datos de dólar blue antes de ${targetDate}`);
+                }
+                
+                const last = candidates[candidates.length - 1];
+                return (last.value_sell + last.value_buy) / 2;  // Promedio de compra y venta
+            } catch (e) {
+                throw new Error(`Error al obtener dólar blue para ${targetDate}: ${e.message}`);
+            }
+        }
+
+        async function calcularActualizaciones(monto, fechaInicio, fechaFin) {
+            const ipcInicio = await getIndexValue(SERIES_IPC, fechaInicio);
+            const ipcFin = await getIndexValue(SERIES_IPC, fechaFin);
+            const cerInicio = await getIndexValue(SERIES_CER, fechaInicio);
+            const cerFin = await getIndexValue(SERIES_CER, fechaFin);
+            const ripteInicio = await getIndexValue(SERIES_RIPTE, fechaInicio);
+            const ripteFin = await getIndexValue(SERIES_RIPTE, fechaFin);
+            const blueInicio = await getBlueValue(fechaInicio);
+            const blueFin = await getBlueValue(fechaFin);
+            
+            const updatedIpc = monto * (ipcFin / ipcInicio);
+            const updatedCer = monto * (cerFin / cerInicio);
+            const updatedRipte = monto * (ripteFin / ripteInicio);
+            const updatedBlue = monto * (blueFin / blueInicio);
+            
+            const results = [updatedIpc, updatedCer, updatedRipte, updatedBlue];
+            const average = results.reduce((a, b) => a + b, 0) / results.length;
+            
+            return {
+                IPC: updatedIpc.toFixed(2),
+                CER: updatedCer.toFixed(2),
+                RIPTE: updatedRipte.toFixed(2),
+                'Dólar Blue': updatedBlue.toFixed(2),
+                Promedio: average.toFixed(2)
+            };
+        }
+
+        function generarPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            // Configuración de fuentes
+            doc.setFont('helvetica');
+            
+            // Título
+            doc.setFontSize(18);
+            doc.setTextColor(26, 58, 95);
+            doc.text('Calculadora de Actualización de Montos', 105, 20, { align: 'center' });
+            doc.setFontSize(12);
+            doc.setTextColor(100, 100, 100);
+            doc.text('Basada en la doctrina del fallo Barrios de la SCBA', 105, 28, { align: 'center' });
+            
+            // Línea separadora
+            doc.setDrawColor(200, 200, 200);
+            doc.line(20, 35, 190, 35);
+            
+            // Datos del caso
+            doc.setFontSize(14);
+            doc.setTextColor(26, 58, 95);
+            doc.text('Datos del Caso', 20, 50);
+            
+            doc.setFontSize(11);
+            doc.setTextColor(50, 50, 50);
+            const caratula = document.getElementById('caratula').value || 'No especificada';
+            doc.text(`Carátula: ${caratula}`, 20, 60);
+            doc.text(`Monto inicial: $${document.getElementById('monto-inicial').textContent}`, 20, 70);
+            doc.text(`Fecha de inicio: ${document.getElementById('fecha-inicio-display').textContent}`, 20, 80);
+            doc.text(`Fecha de fin: ${document.getElementById('fecha-fin-display').textContent}`, 20, 90);
+            
+            // Resultados
+            doc.setFontSize(14);
+            doc.setTextColor(26, 58, 95);
+            doc.text('Resultados de la Actualización', 20, 110);
+            
+            doc.setFontSize(11);
+            doc.setTextColor(50, 50, 50);
+            doc.text(`Actualización por IPC: $${document.getElementById('ipc').textContent}`, 20, 120);
+            doc.text(`Actualización por CER: $${document.getElementById('cer').textContent}`, 20, 130);
+            doc.text(`Actualización por RIPTE: $${document.getElementById('ripte').textContent}`, 20, 140);
+            doc.text(`Actualización por Dólar Blue: $${document.getElementById('blue').textContent}`, 20, 150);
+            
+            // Promedio
+            doc.setFillColor(240, 240, 240);
+            doc.rect(20, 160, 170, 10, 'F');
+            doc.setFontSize(12);
+            doc.setTextColor(26, 58, 95);
+            doc.text(`Promedio de actualizaciones: $${document.getElementById('promedio').textContent}`, 20, 168);
+            
+            // Fecha de generación
+            const fechaGeneracion = new Date().toLocaleDateString('es-AR');
+            doc.setFontSize(10);
+            doc.setTextColor(100, 100, 100);
+            doc.text(`Generado el: ${fechaGeneracion}`, 20, 190);
+            
+            // Guardar el PDF
+            const caratulaNombre = caratula !== 'No especificada' ? caratula.replace(/[^a-z0-9]/gi, '_').toLowerCase() : 'calculo_actualizacion';
+            doc.save(`actualizacion_montos_${caratulaNombre}.pdf`);
+        }
+
+        document.getElementById('formulario').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const caratula = document.getElementById('caratula').value;
+            const monto = parseFloat(document.getElementById('monto').value);
+            const fechaInicio = document.getElementById('fecha-inicio').value;
+            const fechaFin = document.getElementById('fecha-fin').value;
+            
+            const resultadosDiv = document.getElementById('resultados');
+            const errorDiv = document.getElementById('error');
+            const loadingDiv = document.getElementById('loading');
+            
+            resultadosDiv.style.display = 'none';
+            errorDiv.style.display = 'none';
+            loadingDiv.style.display = 'block';
+            
+            if (!monto || !fechaInicio || !fechaFin) {
+                errorDiv.style.display = 'block';
+                document.getElementById('error-message').textContent = 'Por favor, completa todos los campos obligatorios.';
+                loadingDiv.style.display = 'none';
+                return;
+            }
+            
+            try {
+                const resultados = await calcularActualizaciones(monto, fechaInicio, fechaFin);
+                
+                // Mostrar datos del caso
+                document.getElementById('caratula-display').textContent = `Carátula: ${caratula || 'No especificada'}`;
+                document.getElementById('monto-inicial').textContent = `$${monto.toFixed(2)}`;
+                document.getElementById('fecha-inicio-display').textContent = fechaInicio;
+                document.getElementById('fecha-fin-display').textContent = fechaFin;
+                
+                // Mostrar resultados
+                document.getElementById('ipc').textContent = `$${resultados.IPC}`;
+                document.getElementById('cer').textContent = `$${resultados.CER}`;
+                document.getElementById('ripte').textContent = `$${resultados.RIPTE}`;
+                document.getElementById('blue').textContent = `$${resultados['Dólar Blue']}`;
+                document.getElementById('promedio').textContent = `$${resultados.Promedio}`;
+                
+                loadingDiv.style.display = 'none';
+                resultadosDiv.style.display = 'block';
+            } catch (error) {
+                errorDiv.style.display = 'block';
+                document.getElementById('error-message').textContent = error.message;
+                loadingDiv.style.display = 'none';
+            }
+        });
+
+        document.getElementById('exportar-pdf').addEventListener('click', generarPDF);
+    </script>
+</body>
+</html>
