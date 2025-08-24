@@ -277,8 +277,8 @@
         
         <div class="content">
             <div class="info-box">
-                <p><i class="fas fa-info-circle"></i> Esta calculadora actualiza un monto según IPC, CER, RIPTE y Dólar Blue. Ingresa las fechas en formato dd/mm/aaaa. </p>
-                <p> Si las fechas son muy antiguas podría no haber datos (IPC desde 2016, CER desde 2002, RIPTE desde ~2000, blue desde ~2011).</p>
+                <p><i class="fas fa-info-circle"></i> Esta calculadora actualiza un monto según IPC, CER y RIPTE. Ingresa las fechas en formato dd/mm/aaaa. </p>
+                <p> Si las fechas son muy antiguas podría no haber datos (IPC desde 2016, CER desde 2002, RIPTE desde ~2000).</p>
             </div>
             
             <form id="formulario">
@@ -347,10 +347,6 @@
                         <span class="result-value" id="ripte">$0.00</span>
                     </div>
                     <div class="result-item">
-                        <span class="result-label">Actualización por Dólar Blue:</span>
-                        <span class="result-value" id="blue">$0.00</span>
-                    </div>
-                    <div class="result-item">
                         <span class="result-label">Promedio de actualizaciones:</span>
                         <span class="result-value" id="promedio">$0.00</span>
                     </div>
@@ -407,49 +403,37 @@
             }
         }
 
-        async function getBlueValue(targetDate) {
-            try {
-                const url = 'https://api.bluelytics.com.ar/v2/evolution.json';
-                const resp = await fetch(url);
-                if (!resp.ok) throw new Error(`HTTP error: ${resp.status}`);
-                
-                const data = await resp.json();
-                const candidates = data.filter(row => row.source === 'Blue' && row.date <= targetDate)
-                                       .sort((a, b) => a.date.localeCompare(b.date));
-                if (candidates.length === 0) {
-                    throw new Error(`No hay datos de dólar blue antes de ${targetDate}`);
-                }
-                
-                const last = candidates[candidates.length - 1];
-                return (last.value_sell + last.value_buy) / 2;  // Promedio de compra y venta
-            } catch (e) {
-                throw new Error(`Error al obtener dólar blue para ${targetDate}: ${e.message}`);
-            }
-        }
-
         async function calcularActualizaciones(monto, fechaInicio, fechaFin) {
-            const ipcInicio = await getIndexValue(SERIES_IPC, fechaInicio);
-            const ipcFin = await getIndexValue(SERIES_IPC, fechaFin);
+            let ipcInicio, ipcFin, updatedIpc = null;
+            try {
+                ipcInicio = await getIndexValue(SERIES_IPC, fechaInicio);
+                ipcFin = await getIndexValue(SERIES_IPC, fechaFin);
+                updatedIpc = monto * (ipcFin / ipcInicio);
+            } catch (e) {
+                console.warn(`No se pudieron obtener datos de IPC: ${e.message}`);
+                updatedIpc = null;
+            }
+
             const cerInicio = await getIndexValue(SERIES_CER, fechaInicio);
             const cerFin = await getIndexValue(SERIES_CER, fechaFin);
             const ripteInicio = await getIndexValue(SERIES_RIPTE, fechaInicio);
             const ripteFin = await getIndexValue(SERIES_RIPTE, fechaFin);
-            const blueInicio = await getBlueValue(fechaInicio);
-            const blueFin = await getBlueValue(fechaFin);
             
-            const updatedIpc = monto * (ipcFin / ipcInicio);
             const updatedCer = monto * (cerFin / cerInicio);
             const updatedRipte = monto * (ripteFin / ripteInicio);
-            const updatedBlue = monto * (blueFin / blueInicio);
             
-            const results = [updatedIpc, updatedCer, updatedRipte, updatedBlue];
-            const average = results.reduce((a, b) => a + b, 0) / results.length;
+            // Recopilar los resultados válidos (no nulos) para el promedio
+            const validResults = [];
+            if (updatedIpc !== null) validResults.push(updatedIpc);
+            validResults.push(updatedCer);
+            validResults.push(updatedRipte);
+            
+            const average = validResults.reduce((a, b) => a + b, 0) / validResults.length;
             
             return {
-                IPC: updatedIpc.toFixed(2),
+                IPC: updatedIpc !== null ? updatedIpc.toFixed(2) : null,
                 CER: updatedCer.toFixed(2),
                 RIPTE: updatedRipte.toFixed(2),
-                'Dólar Blue': updatedBlue.toFixed(2),
                 Promedio: average.toFixed(2)
             };
         }
@@ -493,23 +477,22 @@
             
             doc.setFontSize(11);
             doc.setTextColor(50, 50, 50);
-            doc.text(`Actualización por IPC: $${document.getElementById('ipc').textContent}`, 20, 120);
+            doc.text(`Actualización por IPC: ${document.getElementById('ipc').textContent}`, 20, 120);
             doc.text(`Actualización por CER: $${document.getElementById('cer').textContent}`, 20, 130);
             doc.text(`Actualización por RIPTE: $${document.getElementById('ripte').textContent}`, 20, 140);
-            doc.text(`Actualización por Dólar Blue: $${document.getElementById('blue').textContent}`, 20, 150);
             
             // Promedio
             doc.setFillColor(240, 240, 240);
-            doc.rect(20, 160, 170, 10, 'F');
+            doc.rect(20, 150, 170, 10, 'F');
             doc.setFontSize(12);
             doc.setTextColor(26, 58, 95);
-            doc.text(`Promedio de actualizaciones: $${document.getElementById('promedio').textContent}`, 20, 168);
+            doc.text(`Promedio de actualizaciones: $${document.getElementById('promedio').textContent}`, 20, 158);
             
             // Fecha de generación
             const fechaGeneracion = new Date().toLocaleDateString('es-AR');
             doc.setFontSize(10);
             doc.setTextColor(100, 100, 100);
-            doc.text(`Generado el: ${fechaGeneracion}`, 20, 190);
+            doc.text(`Generado el: ${fechaGeneracion}`, 20, 180);
             
             // Guardar el PDF
             const caratulaNombre = caratula !== 'No especificada' ? caratula.replace(/[^a-z0-9]/gi, '_').toLowerCase() : 'calculo_actualizacion';
@@ -548,10 +531,9 @@
                 document.getElementById('fecha-fin-display').textContent = fechaFin;
                 
                 // Mostrar resultados
-                document.getElementById('ipc').textContent = `$${resultados.IPC}`;
+                document.getElementById('ipc').textContent = resultados.IPC !== null ? `$${resultados.IPC}` : '-';
                 document.getElementById('cer').textContent = `$${resultados.CER}`;
                 document.getElementById('ripte').textContent = `$${resultados.RIPTE}`;
-                document.getElementById('blue').textContent = `$${resultados['Dólar Blue']}`;
                 document.getElementById('promedio').textContent = `$${resultados.Promedio}`;
                 
                 loadingDiv.style.display = 'none';
