@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acerca de - Jglazarte</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <style>
+        /* Mismos estilos que la página principal */
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --success-color: #27ae60;
+            --danger-color: #e74c3c;
+            --light-bg: #ecf0f1;
+            --card-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 20px 0;
+        }
+
+        .main-container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .about-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: var(--card-shadow);
+            overflow: hidden;
+        }
+
+        .header-section {
+            background: var(--primary-color);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .content-section {
+            padding: 50px 40px;
+        }
+
+        .profile-img {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            margin: 0 auto 30px;
+            display: block;
+            border: 5px solid white;
+            box-shadow: var(--card-shadow);
+        }
+
+        .section-title {
+            font-size: 2rem;
+            color: var(--primary-color);
+            margin-bottom: 30px;
+            text-align: center;
+            font-weight: 300;
+        }
+
+        .about-text {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: #555;
+            text-align: justify;
+            margin-bottom: 30px;
+        }
+
+        .highlight {
+            color: var(--secondary-color);
+            font-weight: 500;
+        }
+
+        .footer {
+            background: var(--primary-color);
+            color: white;
+            text-align: center;
+            padding: 20px;
+            border-radius: 0 0 20px 20px;
+        }
+
+        .btn-back {
+            background: var(--secondary-color);
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 25px;
+            margin: 20px 0;
+            transition: all 0.3s ease;
+        }
+
+        .btn-back:hover {
+            background: #2980b9;
+            transform: translateY(-3px);
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <div class="about-card fade-in">
+            <div class="header-section">
+                <h1>Acerca de Jglazarte</h1>
+                <p>El creador de estas herramientas legales</p>
+            </div>
+
+            <div class="content-section">
+                <img src="1111.jpg" alt="Foto de perfil" class="profile-img">
+                
+                <h2 class="section-title">¿Quién soy?</h2>
+                <p class="about-text">
+                    Soy <span class="highlight">Guillermo Lazarte</span>, Juez del Juzgado Civil y Comercial N° 4 de Azul, y entusiasta de la iformática, Inteligencia Artificial y todo lo que tenga que ver
+                  con las nuevas tecnologías.
+                </p>
+                
+                <h2 class="section-title">¿Por qué esta web?</h2>
+                <p class="about-text">
+                    Esta plataforma nace de la necesidad de proporcionar <span class="highlight">herramientas precisas y actualizadas</span> para cálculos legales complejos, evitando tener 
+                    que navegar por dsitintas webs para lograr un cálculo que se adapte a las pautas que se suelen dar en las sentencias Civiles y Comerciales de la Provincia de Buenos Aires. 
+                    Tras años de lidiar con cálculos manuales propensos a errores, decidí desarrollar 
+                    estas calculadoras que automatizan procesos según la jurisprudencia vigente, lo que primero fue algo personal, para ahorrar tiempo, queda a disposición de aquel al que le resulte útil.
+                </p>
+                
+                <h2 class="section-title">Licencia</h2>
+                <p class="about-text">
+                    Mi compromiso es ofrecer herramientas <span class="highlight">gratuitas, accesibles y confiables</span> 
+                    que faciliten el trabajo legal y promuevan el acceso a la justicia. La licencia GNU GPL v3.0 (General Public License de GNU por sus siglas en inglés)
+                    es una licencia que se centra en el <span class="highlight">copyleft</span> como contraposición al <span class="highlight">copyright</span>. Esto significa
+                   que cualquiera puede acceder al código, modificarlo y distribuirlo o compartirlo.
+                </p>
+                
+                <div class="text-center">
+                    <a href="index.html" class="btn btn-back">
+                        <i class="bi bi-arrow-left"></i> Volver a herramientas
+                    </a>
+                </div>
+            </div>
+            
+            <div class="footer">
+                <p>&copy; 2025 Jglazarte - GNU GPLv3.0</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const card = document.querySelector('.about-card');
+            card.classList.add('fade-in');
+        });
+    </script>
+</body>
+</html>
