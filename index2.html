@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web de proyectos de Jglazarte</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --success-color: #27ae60;
+            --danger-color: #e74c3c;
+            --light-bg: #ecf0f1;
+            --card-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 20px 0;
+        }
+
+        .main-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .projects-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: var(--card-shadow);
+            overflow: hidden;
+            transition: transform 0.3s ease;
+        }
+
+        .projects-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .header-section {
+            background: var(--primary-color);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .header-section h1 {
+            margin: 0;
+            font-size: 2.8rem;
+            font-weight: 300;
+        }
+
+        .header-section p {
+            margin: 10px 0 0;
+            opacity: 0.9;
+            font-size: 1.2rem;
+        }
+
+        .content-section {
+            padding: 60px 40px;
+        }
+
+        .section-title {
+            font-size: 2rem;
+            color: var(--primary-color);
+            margin-bottom: 40px;
+            text-align: center;
+            font-weight: 300;
+        }
+
+        .project-link {
+            display: block;
+            text-decoration: none;
+            color: inherit;
+            transition: all 0.3s ease;
+        }
+
+        .project-link:hover {
+            transform: translateY(-8px);
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .project-card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            box-shadow: var(--card-shadow);
+            height: 100%;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .project-card:hover {
+            border-color: var(--secondary-color);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
+        }
+
+        .project-icon {
+            font-size: 4rem;
+            color: var(--secondary-color);
+            margin-bottom: 20px;
+        }
+
+        .project-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 15px;
+        }
+
+        .project-description {
+            color: #7f8c8d;
+            font-size: 1rem;
+            line-height: 1.6;
+        }
+
+        .footer {
+            background: var(--primary-color);
+            color: white;
+            text-align: center;
+            padding: 20px;
+            margin-top: 60px;
+            border-radius: 0 0 20px 20px;
+        }
+
+        @media (max-width: 768px) {
+            .header-section h1 {
+                font-size: 2.2rem;
+            }
+            
+            .content-section {
+                padding: 40px 20px;
+            }
+            
+            .section-title {
+                font-size: 1.8rem;
+                margin-bottom: 30px;
+            }
+            
+            .project-card {
+                margin-bottom: 20px;
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.8s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <div class="projects-card fade-in">
+            <div class="header-section">
+                <h1>Web de proyectos de Jglazarte</h1>
+                <p>Herramientas para cálculos legales</p>
+            </div>
+
+            <div class="content-section">
+                <h2 class="section-title">Calculadoras</h2>
+                
+                <div class="row">
+                    <div class="col-md-4 col-lg-2-4 mb-4">
+                        <a href="calcdp.html" class="project-link">
+                            <div class="project-card">
+                                <div class="project-icon">
+                                    <i class="bi bi-calculator-fill"></i>
+                                </div>
+                                <h3 class="project-title">Calculadora de Daño Punitivo</h3>
+                                <p class="project-description">
+                                    Herramienta para calcular indemnizaciones por daño punitivo 
+                                    según parámetros de fallo Castelli
+                                </p>
+                            </div>
+                        </a>
+                    </div>
+                    
+                    <div class="col-md-4 col-lg-2-4 mb-4">
+                        <a href="calcinc.html" class="project-link">
+                            <div class="project-card">
+                                <div class="project-icon">
+                                    <i class="bi bi-heart-pulse-fill"></i>
+                                </div>
+                                <h3 class="project-title">Calculadora de Indemnización por Incapacidad Física</h3>
+                                <p class="project-description">
+                                    Sistema para determinar montos indemnizatorios por incapacidad
+                                    con método de renta constante no perpetua
+                                </p>
+                            </div>
+                        </a>
+                    </div>
+                    
+                    <div class="col-md-4 col-lg-2-4 mb-4">
+                        <a href="calcint.html" class="project-link">
+                            <div class="project-card">
+                                <div class="project-icon">
+                                    <i class="bi bi-cash-stack"></i>
+                                </div>
+                                <h3 class="project-title">Cálculo de Intereses Judiciales</h3>
+                                <p class="project-description">
+                                    Herramienta para el cálculo de intereses judiciales, 
+                                    siguiendo la doctrina de fallos Vera y Nidera
+                                </p>
+                            </div>
+                        </a>
+                    </div>
+                    
+                    <div class="col-md-4 col-lg-2-4 mb-4">
+                        <a href="calcbarrios.html" class="project-link">
+                            <div class="project-card">
+                                <div class="project-icon">
+                                    <i class="bi bi-graph-up-arrow"></i>
+                                </div>
+                                <h3 class="project-title">Cálculo de Actualización según Fallo Barrios</h3>
+                                <p class="project-description">
+                                    Herramienta para la actualización de montos según lo establecido 
+                                    en el fallo Barrios, considerando fechas e índices correspondientes
+                                </p>
+                            </div>
+                        </a>
+                    </div>
+                    
+                    <div class="col-md-4 col-lg-2-4 mb-4">
+                        <a href="https://jglazarte.github.io/web/" class="project-link">
+                            <div class="project-card">
+                                <div class="project-icon">
+                                    <i class="bi bi-plus-circle"></i>
+                                </div>
+                                <h3 class="project-title">Próximamente</h3>
+                                <p class="project-description">
+                                    Nueva herramienta en desarrollo
+                                </p>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Espacio para futuros proyectos -->
+                <div class="row mt-5">
+                    <div class="col-12 text-center">
+                        <p class="text-muted">Próximamente más proyectos...</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="footer">
+
+              <div class="content-section">
+    <h2 class="section-title">Contáctame</h2>
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <form action="https://formspree.io/f/tu-id" method="POST" class="p-4 bg-white rounded shadow">
+                <div class="mb-3">
+                    <label for="name" class="form-label">Nombre</label>
+                    <input type="text" class="form-control" id="name" name="name" required>
+                </div>
+                <div class="mb-3">
+                    <label for="email" class="form-label">Correo</label>
+                    <input type="email" class="form-control" id="email" name="email" required>
+                </div>
+                <div class="mb-3">
+                    <label for="message" class="form-label">Mensaje</label>
+                    <textarea class="form-control" id="message" name="message" rows="4" required></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Enviar</button>
+            </form>
+        </div>
+    </div>
+</div>
+              <p>
+                <p>&copy; 2025 Jglazarte - GNU GPLv3.0</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Efecto de aparición suave al cargar la página
+        document.addEventListener('DOMContentLoaded', function() {
+            const cards = document.querySelectorAll('.project-card');
+            
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('fade-in');
+                    }
+                });
+            });
+            
+            cards.forEach(card => {
+                observer.observe(card);
+            });
+        });
+    </script>
+</body>
+</html>
