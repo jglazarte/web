@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulario de Contacto</title>
+    <style>
+        :root {
+            --primary-color: #4a6fa5;
+            --secondary-color: #6c757d;
+            --background-color: #f8f9fa;
+            --text-color: #333;
+            --border-color: #ddd;
+            --error-color: #dc3545;
+            --success-color: #28a745;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 40px auto;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+
+        .form-container {
+            padding: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(74, 111, 165, 0.2);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        .error {
+            color: var(--error-color);
+            font-size: 14px;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .btn {
+            display: inline-block;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: background-color 0.3s;
+        }
+
+        .btn:hover {
+            background-color: #3a5a8a;
+        }
+
+        .btn:disabled {
+            background-color: var(--secondary-color);
+            cursor: not-allowed;
+        }
+
+        .message {
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+            display: none;
+        }
+
+        .message.success {
+            background-color: rgba(40, 167, 69, 0.1);
+            color: var(--success-color);
+            border: 1px solid rgba(40, 167, 69, 0.2);
+        }
+
+        .message.error {
+            background-color: rgba(220, 53, 69, 0.1);
+            color: var(--error-color);
+            border: 1px solid rgba(220, 53, 69, 0.2);
+        }
+
+        .footer {
+            text-align: center;
+            padding: 20px;
+            background-color: #f1f1f1;
+            color: var(--secondary-color);
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Formulario de Contacto</h1>
+        </div>
+        
+        <div class="form-container">
+            <div id="message" class="message"></div>
+            
+            <form id="contactForm" action="https://formspree.io/f/meoloqqb" method="POST">
+                <div class="form-group">
+                    <label for="name">Nombre completo</label>
+                    <input type="text" id="name" name="name" required>
+                    <div id="nameError" class="error">Por favor, introduce tu nombre completo</div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="email">Correo electrónico</label>
+                    <input type="email" id="email" name="email" required>
+                    <div id="emailError" class="error">Por favor, introduce un correo electrónico válido</div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="subject">Asunto</label>
+                    <input type="text" id="subject" name="subject" required>
+                    <div id="subjectError" class="error">Por favor, introduce un asunto</div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="message">Mensaje</label>
+                    <textarea id="messageText" name="message" required></textarea>
+                    <div id="messageError" class="error">Por favor, introduce tu mensaje</div>
+                </div>
+                
+                <button type="submit" id="submitBtn" class="btn">Enviar mensaje</button>
+            </form>
+        </div>
+        
+        <div class="footer">
+            <p>© 2023 - Todos los derechos reservados</p>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const contactForm = document.getElementById('contactForm');
+            const nameInput = document.getElementById('name');
+            const emailInput = document.getElementById('email');
+            const subjectInput = document.getElementById('subject');
+            const messageInput = document.getElementById('messageText');
+            const submitBtn = document.getElementById('submitBtn');
+            const messageDiv = document.getElementById('message');
+            
+            // Validación del formulario
+            function validateForm() {
+                let isValid = true;
+                
+                // Validar nombre
+                if (nameInput.value.trim() === '') {
+                    document.getElementById('nameError').style.display = 'block';
+                    isValid = false;
+                } else {
+                    document.getElementById('nameError').style.display = 'none';
+                }
+                
+                // Validar email
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(emailInput.value)) {
+                    document.getElementById('emailError').style.display = 'block';
+                    isValid = false;
+                } else {
+                    document.getElementById('emailError').style.display = 'none';
+                }
+                
+                // Validar asunto
+                if (subjectInput.value.trim() === '') {
+                    document.getElementById('subjectError').style.display = 'block';
+                    isValid = false;
+                } else {
+                    document.getElementById('subjectError').style.display = 'none';
+                }
+                
+                // Validar mensaje
+                if (messageInput.value.trim() === '') {
+                    document.getElementById('messageError').style.display = 'block';
+                    isValid = false;
+                } else {
+                    document.getElementById('messageError').style.display = 'none';
+                }
+                
+                return isValid;
+            }
+            
+            // Manejar envío del formulario
+            contactForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                if (validateForm()) {
+                    // Deshabilitar botón de envío
+                    submitBtn.disabled = true;
+                    submitBtn.textContent = 'Enviando...';
+                    
+                    // Enviar formulario a Formspree
+                    fetch(contactForm.action, {
+                        method: 'POST',
+                        body: new FormData(contactForm),
+                        headers: {
+                            'Accept': 'application/json'
+                        }
+                    })
+                    .then(response => {
+                        if (response.ok) {
+                            return response.json();
+                        }
+                        throw new Error('Error en el envío');
+                    })
+                    .then(data => {
+                        // Mostrar mensaje de éxito
+                        messageDiv.className = 'message success';
+                        messageDiv.textContent = '¡Mensaje enviado con éxito! Nos pondremos en contacto contigo pronto.';
+                        messageDiv.style.display = 'block';
+                        
+                        // Restablecer formulario
+                        contactForm.reset();
+                    })
+                    .catch(error => {
+                        // Mostrar mensaje de error
+                        messageDiv.className = 'message error';
+                        messageDiv.textContent = 'Hubo un error al enviar el mensaje. Por favor, inténtalo de nuevo.';
+                        messageDiv.style.display = 'block';
+                    })
+                    .finally(() => {
+                        // Rehabilitar botón de envío
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = 'Enviar mensaje';
+                    });
+                }
+            });
+            
+            // Validación en tiempo real
+            nameInput.addEventListener('blur', function() {
+                if (nameInput.value.trim() === '') {
+                    document.getElementById('nameError').style.display = 'block';
+                } else {
+                    document.getElementById('nameError').style.display = 'none';
+                }
+            });
+            
+            emailInput.addEventListener('blur', function() {
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(emailInput.value)) {
+                    document.getElementById('emailError').style.display = 'block';
+                } else {
+                    document.getElementById('emailError').style.display = 'none';
+                }
+            });
+            
+            subjectInput.addEventListener('blur', function() {
+                if (subjectInput.value.trim() === '') {
+                    document.getElementById('subjectError').style.display = 'block';
+                } else {
+                    document.getElementById('subjectError').style.display = 'none';
+                }
+            });
+            
+            messageInput.addEventListener('blur', function() {
+                if (messageInput.value.trim() === '') {
+                    document.getElementById('messageError').style.display = 'block';
+                } else {
+                    document.getElementById('messageError').style.display = 'none';
+                }
+            });
+        });
+    </script>
+</body>
+</html>
