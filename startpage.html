@@ -308,8 +308,8 @@
                 if(nextNba) matches.push({ t1: 'Knicks', t2: nextNba.competitions[0].competitors.find(c => c.team.abbreviation !== 'NY').team.shortDisplayName, date: new Date(nextNba.date), comp: 'NBA' });
 
                 const foot = [
-                    { t1: 'River', t2: 'Carabobo', date: new Date('2026-04-15T21:30:00'), comp: 'Sudamericana' },
-                    { t1: 'River', t2: 'Boca Juniors', date: new Date('2026-04-19T17:00:00'), comp: 'Liga Profesional' },
+                    { t1: 'River', t2: 'Aldosivi', date: new Date('2026-04-25T21:30:00'), comp: 'Apertura' },
+                    { t1: 'River', t2: 'Bragantino', date: new Date('2026-04-30T21:30:00'), comp: 'Sudamericana' },
                     { t1: 'Argentina', t2: 'Algeria', date: new Date('2026-06-16T22:00:00'), comp: 'Mundial 2026' }
                 ];
                 matches = [...matches, ...foot].sort((a,b) => a.date - b.date);
