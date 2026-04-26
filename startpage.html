@@ -185,19 +185,19 @@
             </div>
 
             <div class="card">
-                <div class="card-title"><i class="fas fa-calendar-alt"></i> Próximos Partidos</div>
-                <div id="matches-container"><div class="loading"></div></div>
-            </div>
-        </div>
-
-        <div class="dashboard-second-row">
-            <div class="card">
                 <div class="card-title"><i class="fas fa-tasks"></i> Tareas</div>
                 <ul class="todo-list" id="todo-list"></ul>
                 <div class="add-todo">
                     <input type="text" id="todo-input" placeholder="Nueva tarea...">
                     <button id="add-todo-btn"><i class="fas fa-plus"></i></button>
                 </div>
+            </div>
+        </div>
+
+        <div class="dashboard-second-row">
+            <div class="card">
+                <div class="card-title"><i class="fas fa-calendar-alt"></i> Próximos Partidos</div>
+                <div id="matches-container"><div class="loading"></div></div>
             </div>
 
             <div class="card">
@@ -234,13 +234,23 @@
         // --- CITAS ---
         const quotes = [
             { t: "Uno llega a ser lo que es por lo que lee.", a: "Jorge Luis Borges" },
+            { t: "Siempre imaginé que el Paraíso sería algún tipo de biblioteca.", a: "Jorge Luis Borges" },
+            { t: "De todos los instrumentos del hombre, el más asombroso es, sin duda, el libro.", a: "Jorge Luis Borges" },
+            { t: "La duda es uno de los nombres de la inteligencia.", a: "Jorge Luis Borges" },
             { t: "El hombre está condenado a ser libre.", a: "Jean-Paul Sartre" },
+            { t: "La libertad es lo que haces con lo que te han hecho.", a: "Jean-Paul Sartre" },
+            { t: "Felicidad no es hacer lo que uno quiere, sino querer lo que uno hace.", a: "Jean-Paul Sartre" },
             { t: "El lenguaje es la casa del ser.", a: "Martin Heidegger" },
+            { t: "La esencia de la técnica no es nada técnico.", a: "Martin Heidegger" },
+            { t: "El hombre no es el señor del ente, es el pastor del ser.", a: "Martin Heidegger" },
+            { t: "Solo hay mundo donde hay lenguaje.", a: "Martin Heidegger" },
+            { t: "No me pregunten quién soy, ni me pidan que siga siendo el mismo.", a: "Michel Foucault" },
+            { t: "Donde hay poder, hay resistencia.", a: "Michel Foucault" },
+            { t: "El saber es el único espacio de libertad del ser.", a: "Michel Foucault" },
             { t: "Hoy el alma se siente cansada de sí misma.", a: "Byung-Chul Han" },
             { t: "El exceso de positividad se manifiesta como exceso de estímulos.", a: "Byung-Chul Han" },
             { t: "La aventura es el resultado de una mala planificación.", a: "G.K. Chesterton" },
             { t: "Cualquier destino, por largo y complicado que sea, consta en realidad de un solo momento.", a: "Jorge Luis Borges" },
-            { t: "La esencia de la técnica no es nada técnico.", a: "Martin Heidegger" },
             { t: "Lo más importante de un hombre es lo que da por sentado.", a: "G.K. Chesterton" }
         ];
         const q = quotes[Math.floor(Math.random()*quotes.length)];
@@ -301,21 +311,55 @@
         async function loadMatches() {
             const container = document.getElementById('matches-container');
             let matches = [];
+
+            // 1. Partidos de Fútbol (datos manuales porque las APIs públicas fallan con los calendarios de Argentina)
+            const footMatches = [
+                // Próximos de River (podés modificar las fechas y rivales aquí)
+                { t1: 'River', t2: 'Rival a Confirmar', date: new Date('2026-05-05T17:00:00') },
+                { t1: 'River', t2: 'Rival a Confirmar', date: new Date('2026-05-12T17:00:00') },
+                // Selección Argentina
+                { t1: 'Argentina', t2: 'Argelia', date: new Date('2026-06-16T22:00:00') }
+            ];
+            
+            // Filtramos solo los que no pasaron
+            footMatches.forEach(m => {
+                if (m.date > new Date()) matches.push(m);
+            });
+
+            // 2. Partidos NBA (Knicks) dinámicos vía API
             try {
-                const nba = await fetch('https://site.api.espn.com/apis/site/v2/sports/basketball/nba/teams/nyk/schedule');
-                const nData = await nba.json();
-                const nextNba = nData.events?.find(e => e.competitions[0].status.type.name !== 'STATUS_FINAL');
-                if(nextNba) matches.push({ t1: 'Knicks', t2: nextNba.competitions[0].competitors.find(c => c.team.abbreviation !== 'NY').team.shortDisplayName, date: new Date(nextNba.date), comp: 'NBA' });
+                const res = await fetch('https://site.api.espn.com/apis/site/v2/sports/basketball/nba/teams/nyk/schedule');
+                const data = await res.json();
+                const futureEvents = data.events?.filter(e => {
+                    const status = e.competitions[0].status.type.name;
+                    return status !== 'STATUS_FINAL' && status !== 'STATUS_POSTPONED' && status !== 'STATUS_CANCELED';
+                }) || [];
 
-                const foot = [
-                    { t1: 'River', t2: 'Aldosivi', date: new Date('2026-04-25T21:30:00'), comp: 'Apertura' },
-                    { t1: 'River', t2: 'Bragantino', date: new Date('2026-04-30T21:30:00'), comp: 'Sudamericana' },
-                    { t1: 'Argentina', t2: 'Algeria', date: new Date('2026-06-16T22:00:00'), comp: 'Mundial 2026' }
-                ];
-                matches = [...matches, ...foot].sort((a,b) => a.date - b.date);
-            } catch(e) { console.log("Error API Partidos"); }
+                futureEvents.sort((a, b) => new Date(a.date) - new Date(b.date));
+                const nextTwoKnicks = futureEvents.slice(0, 2);
 
-            container.innerHTML = matches.slice(0, 4).map(m => `
+                nextTwoKnicks.forEach(e => {
+                    const comp = e.competitions[0];
+                    const other = comp.competitors.find(c => c.team.abbreviation !== 'NY');
+                    matches.push({ 
+                        t1: 'Knicks', 
+                        t2: other ? other.team.shortDisplayName : 'Rival', 
+                        date: new Date(e.date) 
+                    });
+                });
+            } catch(e) {
+                console.log("Error API NBA");
+            }
+
+            // Ordenamos todos los partidos cronológicamente
+            matches.sort((a,b) => a.date - b.date);
+
+            if (matches.length === 0) {
+                container.innerHTML = '<div style="text-align:center; padding:10px; color:var(--text-secondary); font-size:0.9rem;">No hay partidos programados</div>';
+                return;
+            }
+
+            container.innerHTML = matches.map(m => `
                 <div class="match-item">
                     <div class="team"><div class="team-logo">${m.t1.substring(0,2)}</div><span>${m.t1}</span></div>
                     <div class="match-info">
