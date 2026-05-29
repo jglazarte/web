@@ -8,4 +8,8 @@
 
 **Calculadora fallo Barrios:** Actualiza un monto según IPC, CER, RIPTE y dólar blue.
 
+**Anonimizador:** Anonimiza nombres propios y números de DNI y CUIL/CUIT para poder usar los textos en IA en la nube.
+
+**Equivalencias:** Equivalencias entre el Código Civil y el Código Civil y Comercial, en ambas direcciones.
+
 *Todos los proyectos están licenciados bajo la GNU - GPLv3.0 (copyleft).*
