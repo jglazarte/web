@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Publicaciones - Jglazarte</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --success-color: #27ae60;
+            --danger-color: #e74c3c;
+            --light-bg: #ecf0f1;
+            --card-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 20px 0;
+        }
+
+        .main-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .publications-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: var(--card-shadow);
+            overflow: hidden;
+            transition: transform 0.3s ease;
+        }
+
+        .publications-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .header-section {
+            background: var(--primary-color);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .header-section h1 {
+            margin: 0;
+            font-size: 2.8rem;
+            font-weight: 300;
+        }
+
+        .header-section p {
+            margin: 10px 0 0;
+            opacity: 0.9;
+            font-size: 1.2rem;
+        }
+
+        .content-section {
+            padding: 60px 40px;
+        }
+
+        .section-title {
+            font-size: 2rem;
+            color: var(--primary-color);
+            margin-bottom: 40px;
+            text-align: center;
+            font-weight: 300;
+        }
+
+        .publication-link {
+            display: block;
+            text-decoration: none;
+            color: inherit;
+            transition: all 0.3s ease;
+        }
+
+        .publication-link:hover {
+            transform: translateY(-8px);
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .publication-card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            box-shadow: var(--card-shadow);
+            height: 100%;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .publication-card:hover {
+            border-color: var(--secondary-color);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
+        }
+
+        .publication-icon {
+            font-size: 4rem;
+            color: var(--secondary-color);
+            margin-bottom: 20px;
+        }
+
+        .publication-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 15px;
+            line-height: 1.4;
+        }
+
+        .publication-description {
+            color: #7f8c8d;
+            font-size: 1rem;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            flex-grow: 1;
+        }
+
+        .btn-read-more {
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-read-more:hover {
+            background-color: var(--primary-color);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .footer {
+            background: var(--primary-color);
+            color: white;
+            text-align: center;
+            padding: 20px;
+            margin-top: 60px;
+            border-radius: 0 0 20px 20px;
+        }
+
+        @media (max-width: 768px) {
+            .header-section h1 {
+                font-size: 2.2rem;
+            }
+            
+            .content-section {
+                padding: 40px 20px;
+            }
+            
+            .section-title {
+                font-size: 1.8rem;
+                margin-bottom: 30px;
+            }
+            
+            .publication-card {
+                margin-bottom: 20px;
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.8s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <div class="publications-card fade-in">
+            <div class="header-section">
+                <h1>Publicaciones</h1>
+                <p>Artículos y trabajos sobre derecho y cálculos legales</p>
+            </div>
+
+            <div class="content-section">
+                <h2 class="section-title">Artículos Destacados</h2>
+                
+                <div class="row">
+                    <div class="col-md-6 col-lg-3 mb-4">
+                        <a href="https://jglazarte.github.io/web/observatorio.html" class="publication-link">
+                            <div class="publication-card">
+                                <div class="publication-icon">
+                                    <i class="bi bi-globe2-fill"></i>
+                                </div>
+                                <h3 class="publication-title">Observatorio Honduras Sur 2011</h3>
+                                <p class="publication-description">
+                                    Análisis jurídico sobre la situación legal en Honduras Sur durante el año 2011
+                                </p>
+                                <a href="https://jglazarte.github.io/web/observatorio.html" class="btn-read-more">Leer más</a>
+                            </div>
+                        </a>
+                    </div>
+                    
+                    <div class="col-md-6 col-lg-3 mb-4">
+                        <a href="https://jglazarte.github.io/web/acerca.pdf" class="publication-link">
+                            <div class="publication-card">
+                                <div class="publication-icon">
+                                    <i class="bi bi-calculator-fill"></i>
+                                </div>
+                                <h3 class="publication-title">Acerca de la cuantificación del daño punitivo</h3>
+                                <p class="publication-description">
+                                    Estudio detallado sobre los métodos y criterios para la cuantificación del daño punitivo
+                                </p>
+                                <a href="https://jglazarte.github.io/web/acerca.pdf" class="btn-read-more">Leer más</a>
+                            </div>
+                        </a>
+                    </div>
+                    
+                    <div class="col-md-6 col-lg-3 mb-4">
+                        <a href="https://jglazarte.github.io/web/cuantificacion.html" class="publication-link">
+                            <div class="publication-card">
+                                <div class="publication-icon">
+                                    <i class="bi bi-graph-up-arrow"></i>
+                                </div>
+                                <h3 class="publication-title">Hacia una metodología estandarizada para la cuantificación del daño punitivo en el derecho argentino</h3>
+                                <p class="publication-description">
+                                    Propuesta de metodología estandarizada para la cuantificación del daño punitivo
+                                </p>
+                                <a href="https://jglazarte.github.io/web/cuantificacion.pdf" class="btn-read-more">Leer más</a>
+                            </div>
+                        </a>
+                    </div>
+                    
+                    <div class="col-md-6 col-lg-3 mb-4">
+                        <a href="https://jglazarte.github.io/web/herencia.html" class="publication-link">
+                            <div class="publication-card">
+                                <div class="publication-icon">
+                                    <i class="bi bi-laptop-fill"></i>
+                                </div>
+                                <h3 class="publication-title">La herencia digital en el derecho argentino</h3>
+                                <p class="publication-description">
+                                    Análisis de los aspectos legales de la herencia digital en el marco jurídico argentino
+                                </p>
+                                <a href="https://jglazarte.github.io/web/herencia.pdf" class="btn-read-more">Leer más</a>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Sección de información adicional -->
+                <div class="row mt-5">
+                    <div class="col-12 text-center">
+                        <p class="text-muted">¿Tienes una consulta o sugerencia?</p>
+                        <a href="contacto.html" class="btn btn-primary mt-3">Contactar</a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="footer">
+                <p>&copy; 2026 Jglazarte - GNU GPLv3.0 | <a href="acerca.html" style="color: white; text-decoration: none;">Acerca de</a></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Efecto de aparición suave al cargar la página
+        document.addEventListener('DOMContentLoaded', function() {
+            const cards = document.querySelectorAll('.publication-card');
+            
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('fade-in');
+                    }
+                });
+            });
+            
+            cards.forEach(card => {
+                observer.observe(card);
+            });
+        });
+    </script>
+
+<button id="toTop" class="btn btn-primary rounded-circle"><i class="bi bi-arrow-up"></i></button>
+<style>
+    #toTop {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        display: none;
+        width: 50px;
+        height: 50px;
+        font-size: 1.5rem;
+        box-shadow: var(--card-shadow);
+    }
+</style>
+<script>
+    window.addEventListener('scroll', function() {
+        document.getElementById('toTop').style.display = window.scrollY > 200 ? 'block' : 'none';
+    });
+    document.getElementById('toTop').addEventListener('click', function() {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+</script>
+    
+</body>
+</html>
