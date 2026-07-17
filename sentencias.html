@@ -3,10 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AdminExptes - Gestión de Expedientes</title>
+  <title>AdminExptes - Gestión de Expedientes (Supabase Cloud + Respaldo Local)</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- SDK Oficial de Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
     tailwind.config = {
@@ -35,6 +36,7 @@
 </head>
 <body class="bg-slate-50 text-slate-800 h-screen flex flex-col overflow-hidden">
 
+  <!-- Header -->
   <header class="bg-white border-b border-slate-200 shadow-sm py-4 px-6 flex justify-between items-center z-10 shrink-0">
     <div class="flex items-center gap-3">
       <div class="bg-indigo-600 text-white p-2 rounded-lg shadow-md">
@@ -56,7 +58,9 @@
     </div>
   </header>
 
+  <!-- Main Content -->
   <div class="flex flex-1 overflow-hidden">
+    <!-- Sidebar: Team -->
     <aside class="w-64 md:w-72 bg-white border-r border-slate-200 flex flex-col shadow-[4px_0_24px_rgba(0,0,0,0.02)] z-0 shrink-0 overflow-y-auto hidden sm:flex">
       <div class="p-5 border-b border-slate-100">
         <h2 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">Resumen del Equipo</h2>
@@ -64,7 +68,9 @@
       </div>
     </aside>
 
+    <!-- Main Workspace -->
     <main class="flex-1 flex flex-col p-4 md:p-6 overflow-hidden bg-slate-50 relative">
+      <!-- Toolbar -->
       <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6 shrink-0">
         <div class="relative w-full md:w-96">
           <i class="fa-solid fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400"></i>
@@ -75,6 +81,7 @@
         </button>
       </div>
 
+      <!-- Table Container -->
       <div class="flex-1 glass-card rounded-2xl shadow-sm overflow-hidden flex flex-col border border-slate-200">
         <div class="overflow-x-auto overflow-y-auto flex-1 relative">
           <table class="w-full text-left border-collapse min-w-max">
@@ -100,6 +107,7 @@
     </main>
   </div>
 
+  <!-- Modal: Editar/Agregar Expediente -->
   <div id="expediente-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 opacity-0 transition-opacity duration-300">
     <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg overflow-hidden transform scale-95 transition-transform duration-300" id="expediente-modal-content">
       <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50">
@@ -159,6 +167,7 @@
     </div>
   </div>
 
+  <!-- Modal: Gestionar Equipo -->
   <div id="team-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 opacity-0 transition-opacity duration-300">
     <div class="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden transform scale-95 transition-transform duration-300" id="team-modal-content">
       <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50">
@@ -188,7 +197,7 @@
     let sortColumn = '';
     let sortAsc = true;
 
-    // --- CARGA SÍNCRONA DESDE LA NUBE ---
+    // --- CARGA SÍNCRONA CON RESPALDO LOCAL HÍBRIDO ---
     async function init() {
       await fetchCloudData();
       renderTeam();
@@ -206,8 +215,8 @@
         let { data: expData, error: e2 } = await _supabase.from('expedientes').select('*');
         if (e2) throw e2;
 
-        appData.equipo = equipoData ? equipoData.map(e => e.nombre) : [];
-        appData.expedientes = expData ? expData.map(e => ({
+        const cloudEquipo = equipoData ? equipoData.map(e => e.nombre) : [];
+        const cloudExpedientes = expData ? expData.map(e => ({
           id: e.id,
           numero: e.numero,
           caratula: e.caratula,
@@ -217,15 +226,126 @@
           estado: e.estado
         })) : [];
 
+        // Evaluar si la nube se vació inesperadamente pero tenemos un respaldo local duradero
+        if (cloudExpedientes.length === 0) {
+          const localBackup = localStorage.getItem('adminexptes_backup');
+          if (localBackup) {
+            const parsedBackup = JSON.parse(localBackup);
+            if (parsedBackup.expedientes && parsedBackup.expedientes.length > 0) {
+              if (confirm("Alerta: La nube no devolvió expedientes, pero encontramos un respaldo en esta PC con " + parsedBackup.expedientes.length + " registros. ¿Deseas usar el respaldo local e intentar reparar la nube automáticamente?")) {
+                appData = parsedBackup;
+                // Intentar resincronizar la nube de fondo inmediatamente
+                await restaurarNubeDesdeRespaldo();
+                return;
+              }
+            }
+          }
+        }
+
+        // Si la nube responde bien, actualizamos el estado y renovamos el respaldo local
+        appData.equipo = cloudEquipo;
+        appData.expedientes = cloudExpedientes;
+
         if(!appData.equipo.includes("Sin asignar")) {
           appData.equipo.unshift("Sin asignar");
         }
+
+        // Guardar/Actualizar copia de seguridad local en esta PC
+        localStorage.setItem('adminexptes_backup', JSON.stringify(appData));
+
       } catch (err) {
-        console.error("Error cargando datos de Supabase:", err);
+        console.error("Error cargando datos de Supabase, intentando levantar respaldo local:", err);
+        const localBackup = localStorage.getItem('adminexptes_backup');
+        if (localBackup) {
+          appData = JSON.parse(localBackup);
+          alert("Error de conexión. Trabajando temporalmente con el respaldo de esta PC.");
+        }
       }
     }
 
-    // --- RENDERIZADO ---
+    // Función auxiliar para forzar la resincronización si la nube falló
+    async function restaurarNubeDesdeRespaldo() {
+      try {
+        // Reinyectar integrantes del equipo
+        for (let miembro of appData.equipo) {
+          if (miembro !== "Sin asignar") {
+            await _supabase.from('equipo').insert([{ nombre: miembro }]).onConflict('nombre').ignore();
+          }
+        }
+        // Reinyectar expedientes
+        if (appData.expedientes.length > 0) {
+          const payload = appData.expedientes.map(e => ({
+            id: e.id,
+            numero: e.numero,
+            caratula: e.caratula,
+            ultimo_paso: e.ultimoPaso,
+            proxima_tarea: e.proximaTarea,
+            responsable: e.responsable === 'Sin asignar' ? null : e.responsable,
+            estado: e.estado
+          }));
+          const { error } = await _supabase.from('expedientes').upsert(payload);
+          if (!error) alert("¡Respaldo local subido con éxito a Supabase de forma automática!");
+        }
+      } catch (e) {
+        console.error("No se pudo auto-reparar la nube:", e);
+      }
+    }
+
+    // --- ACCIONES DE EXPEDIENTES ACTUALIZADAS ---
+    async function saveExpediente(e) {
+      e.preventDefault();
+      const id = document.getElementById('exp-id').value || Date.now().toString() + Math.random().toString(36).substr(2, 5);
+      
+      const payload = {
+        id: id,
+        numero: document.getElementById('exp-numero').value.trim(),
+        caratula: document.getElementById('exp-caratula').value.trim(),
+        ultimo_paso: document.getElementById('exp-ultimo').value.trim(),
+        proxima_tarea: document.getElementById('exp-proxima').value.trim(),
+        responsable: document.getElementById('exp-responsable').value === 'Sin asignar' ? null : document.getElementById('exp-responsable').value,
+        estado: document.querySelector('input[name="exp-estado"]:checked').value
+      };
+
+      // Guardar en la nube
+      const { error } = await _supabase.from('expedientes').upsert(payload);
+      if(error) {
+        alert("Error al guardar en la nube: " + error.message);
+      }
+      
+      // Actualizar interfaz y refrescar respaldo local pase lo que pase
+      await init();
+      closeExpedienteModal();
+    }
+
+    async function deleteExpediente(id) {
+      if(confirm('¿Estás seguro de eliminar este expediente?')) {
+        const { error } = await _supabase.from('expedientes').delete().eq('id', id);
+        if(error) alert("Error al eliminar de la nube: " + error.message);
+        await init();
+      }
+    }
+
+    // --- ACCIONES DE EQUIPO ACTUALIZADAS ---
+    async function addTeamMember() {
+      const input = document.getElementById('new-member');
+      const name = input.value.trim();
+      if(name && !appData.equipo.includes(name)) {
+        const { error } = await _supabase.from('equipo').insert([{ nombre: name }]);
+        if(error) alert("Error al agregar integrante en la nube: " + error.message);
+        input.value = '';
+        await init();
+      }
+    }
+
+    async function removeTeamMember(name) {
+      if(confirm(`¿Eliminar a ${name}? Sus expedientes quedarán como 'Sin asignar'.`)) {
+        const { error } = await _supabase.from('equipo').delete().eq('nombre', name);
+        if(error) alert("Error al remover integrante de la nube: " + error.message);
+        await init();
+      }
+    }
+
+    // --- RENDERIZADO GENERAL DE LA INTERFAZ ---
     function renderTeam() {
       const list = document.getElementById('team-list');
       list.innerHTML = '';
@@ -300,59 +420,6 @@
       });
     }
 
-    // --- ACCIONES DE EXPEDIENTES ---
-    async function saveExpediente(e) {
-      e.preventDefault();
-      const id = document.getElementById('exp-id').value || Date.now().toString() + Math.random().toString(36).substr(2, 5);
-      
-      const payload = {
-        id: id,
-        numero: document.getElementById('exp-numero').value.trim(),
-        caratula: document.getElementById('exp-caratula').value.trim(),
-        ultimo_paso: document.getElementById('exp-ultimo').value.trim(),
-        proxima_tarea: document.getElementById('exp-proxima').value.trim(),
-        responsable: document.getElementById('exp-responsable').value === 'Sin asignar' ? null : document.getElementById('exp-responsable').value,
-        estado: document.querySelector('input[name="exp-estado"]:checked').value
-      };
-
-      const { error } = await _supabase.from('expedientes').upsert(payload);
-      if(error) alert("Error al guardar: " + error.message);
-      else {
-        await init();
-        closeExpedienteModal();
-      }
-    }
-
-    async function deleteExpediente(id) {
-      if(confirm('¿Estás seguro de eliminar este expediente?')) {
-        const { error } = await _supabase.from('expedientes').delete().eq('id', id);
-        if(error) alert("Error al eliminar: " + error.message);
-        else await init();
-      }
-    }
-
-    // --- ACCIONES DE EQUIPO ---
-    async function addTeamMember() {
-      const input = document.getElementById('new-member');
-      const name = input.value.trim();
-      if(name && !appData.equipo.includes(name)) {
-        const { error } = await _supabase.from('equipo').insert([{ nombre: name }]);
-        if(error) alert("Error al agregar integrante: " + error.message);
-        else {
-          input.value = '';
-          await init();
-        }
-      }
-    }
-
-    async function removeTeamMember(name) {
-      if(confirm(`¿Eliminar a ${name}? Sus expedientes quedarán como 'Sin asignar'.`)) {
-        const { error } = await _supabase.from('equipo').delete().eq('nombre', name);
-        if(error) alert("Error al remover integrante: " + error.message);
-        else await init();
-      }
-    }
-
     // --- IMPORTAR MASIVO (CSV) ---
     async function importCSV(event) {
       const file = event.target.files[0];
@@ -382,13 +449,11 @@
           }
         }
 
-        // Subir nuevos integrantes del equipo primero
         for(let member of batchTeam) {
           if(!appData.equipo.includes(member)) {
             await _supabase.from('equipo').insert([{ nombre: member }]);
           }
         }
-        // Subir expedientes
         if(batchExp.length > 0) {
           const { error } = await _supabase.from('expedientes').upsert(batchExp);
           if(error) alert("Error al importar lotes: " + error.message);
@@ -400,7 +465,7 @@
       reader.readAsText(file);
     }
 
-    // --- FILTRADO, ORDENAMIENTO Y UTILS (LOCAL) ---
+    // --- FILTRADO, ORDENAMIENTO Y UTILS ---
     function sortTable(column) {
       if (sortColumn === column) sortAsc = !sortAsc; else { sortColumn = column; sortAsc = true; }
       const valMap = { 'verde': 1, 'amarillo': 2, 'rojo': 3 };
@@ -426,7 +491,6 @@
       renderTable(filtered);
     }
 
-    style = "";
     function exportCSV() {
       if(appData.expedientes.length === 0) return;
       const csvRows = [["ID", "Número", "Carátula", "Último Paso", "Próxima Tarea", "Responsable", "Estado"].join(';')];
@@ -474,6 +538,7 @@
       setTimeout(() => document.getElementById('team-modal').classList.remove('opacity-0'), 10);
     }
 
+    // El resto de listeners de UI siguen igual
     function closeTeamModal() {
       document.getElementById('team-modal').classList.add('opacity-0');
       setTimeout(() => document.getElementById('team-modal').classList.add('hidden'), 300);
@@ -487,7 +552,6 @@
       });
     }
 
-    // Ejecutar inicialización al cargar la página
     init();
 
     document.getElementById('expediente-modal').addEventListener('click', function(e) { if(e.target === this) closeExpedienteModal(); });
