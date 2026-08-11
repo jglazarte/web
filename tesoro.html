@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>El Enigma del Tesoro</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Pirata+One&family=Special+Elite&family=Caveat:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg-deep: #0f0805;
+    --bg-mid: #2a1810;
+    --bg-warm: #3d2817;
+    --parchment-light: #f0deb8;
+    --parchment: #ddc090;
+    --parchment-dark: #b89968;
+    --ink: #2a1810;
+    --ink-faded: #5c3a20;
+    --gold: #ffc857;
+    --gold-bright: #ffe09a;
+    --gold-deep: #c89a30;
+    --error: #d94545;
+    --success: #6db33f;
+    --wax: #b22222;
+  }
+
+  html, body { width: 100%; overflow-x: hidden; }
+
+  body {
+    font-family: 'Special Elite', monospace;
+    background: radial-gradient(ellipse at 50% 0%, var(--bg-warm) 0%, var(--bg-mid) 40%, var(--bg-deep) 100%);
+    color: var(--parchment-light);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    position: relative;
+  }
+
+  /* Capa de atmósfera con manchas de luz */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      radial-gradient(circle at 15% 25%, rgba(255, 200, 87, 0.05) 0%, transparent 30%),
+      radial-gradient(circle at 85% 75%, rgba(255, 200, 87, 0.04) 0%, transparent 35%),
+      radial-gradient(circle at 50% 50%, rgba(139, 69, 19, 0.06) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  /* Textura de grano */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' /%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+    opacity: 0.15;
+    pointer-events: none;
+    z-index: 1;
+    mix-blend-mode: overlay;
+  }
+
+  /* Partículas doradas flotantes */
+  .particles {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 2;
+  }
+
+  .particle {
+    position: absolute;
+    background: radial-gradient(circle, var(--gold-bright) 0%, var(--gold) 40%, transparent 70%);
+    border-radius: 50%;
+    filter: blur(0.5px);
+    animation: float-up linear infinite;
+  }
+
+  @keyframes float-up {
+    0% { transform: translateY(100vh) translateX(0) scale(0); opacity: 0; }
+    10% { opacity: 1; transform: translateY(90vh) translateX(0) scale(1); }
+    90% { opacity: 1; }
+    100% { transform: translateY(-10vh) translateX(var(--drift, 50px)) scale(0.5); opacity: 0; }
+  }
+
+  /* Llaves decorativas flotantes */
+  .floating-key {
+    position: fixed;
+    top: 18%;
+    left: 4%;
+    font-size: 52px;
+    opacity: 0.35;
+    z-index: 3;
+    animation: key-float 6s ease-in-out infinite;
+    pointer-events: none;
+    filter: drop-shadow(0 0 15px rgba(255, 200, 87, 0.4));
+  }
+
+  .floating-key-2 {
+    position: fixed;
+    top: 65%;
+    right: 6%;
+    font-size: 42px;
+    opacity: 0.3;
+    z-index: 3;
+    animation: key-float 7s ease-in-out infinite 1s;
+    pointer-events: none;
+    filter: drop-shadow(0 0 15px rgba(255, 200, 87, 0.4));
+  }
+
+  @keyframes key-float {
+    0%, 100% { transform: translateY(0) rotate(-15deg); }
+    50% { transform: translateY(-25px) rotate(15deg); }
+  }
+
+  .container {
+    position: relative;
+    z-index: 10;
+    max-width: 900px;
+    width: 100%;
+    text-align: center;
+  }
+
+  /* Encabezado */
+  .header {
+    margin-bottom: 25px;
+    animation: fade-down 1s ease-out;
+  }
+
+  @keyframes fade-down {
+    0% { opacity: 0; transform: translateY(-30px); }
+    100% { opacity: 1; transform: translateY(0); }
+  }
+
+  .compass-icon {
+    font-size: 70px;
+    display: inline-block;
+    animation: spin-slow 12s linear infinite, bob 4s ease-in-out infinite;
+    filter: drop-shadow(0 0 25px rgba(255, 200, 87, 0.5));
+  }
+
+  @keyframes spin-slow {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+
+  @keyframes bob {
+    0%, 100% { translate: 0 0; }
+    50% { translate: 0 -10px; }
+  }
+
+  .title {
+    font-family: 'Pirata One', cursive;
+    font-size: clamp(2.2rem, 5.5vw, 4rem);
+    color: var(--gold);
+    text-shadow:
+      0 0 30px rgba(255, 200, 87, 0.4),
+      3px 3px 0 var(--bg-deep),
+      -1px -1px 0 var(--gold-deep);
+    letter-spacing: 3px;
+    margin: 10px 0 5px;
+    line-height: 1.1;
+  }
+
+  .subtitle {
+    font-family: 'Caveat', cursive;
+    font-size: clamp(1.2rem, 2.5vw, 1.7rem);
+    color: var(--parchment-dark);
+    font-style: italic;
+    opacity: 0.9;
+  }
+
+  /* Pergamino */
+  .parchment {
+    background:
+      radial-gradient(ellipse at 15% 20%, rgba(139, 69, 19, 0.15) 0%, transparent 25%),
+      radial-gradient(ellipse at 85% 80%, rgba(139, 69, 19, 0.18) 0%, transparent 25%),
+      radial-gradient(ellipse at 70% 15%, rgba(160, 100, 50, 0.12) 0%, transparent 20%),
+      radial-gradient(ellipse at 25% 75%, rgba(120, 70, 30, 0.15) 0%, transparent 20%),
+      linear-gradient(135deg, var(--parchment-light) 0%, var(--parchment) 50%, var(--parchment-dark) 100%);
+    padding: 50px 40px 40px;
+    position: relative;
+    margin: 25px 0;
+    box-shadow:
+      0 25px 70px rgba(0, 0, 0, 0.7),
+      inset 0 0 80px rgba(139, 90, 43, 0.25),
+      inset 0 0 20px rgba(60, 30, 10, 0.1);
+    color: var(--ink);
+    clip-path: polygon(
+      0% 5%, 3% 0%, 10% 4%, 18% 1%, 28% 5%, 38% 0%, 48% 4%, 58% 1%, 68% 5%, 78% 0%, 88% 4%, 95% 0%, 100% 5%,
+      100% 95%, 95% 100%, 88% 96%, 78% 100%, 68% 95%, 58% 100%, 48% 96%, 38% 100%, 28% 95%, 18% 100%, 10% 96%, 3% 100%, 0% 95%
+    );
+    animation: parchment-appear 1s ease-out 0.3s backwards;
+    transition: box-shadow 0.6s;
+  }
+
+  .parchment.success-glow {
+    box-shadow:
+      0 25px 70px rgba(0, 0, 0, 0.7),
+      inset 0 0 80px rgba(255, 200, 87, 0.4),
+      0 0 80px rgba(255, 200, 87, 0.5);
+  }
+
+  @keyframes parchment-appear {
+    0% { opacity: 0; transform: scale(0.8) rotate(-2deg); }
+    100% { opacity: 1; transform: scale(1) rotate(0); }
+  }
+
+  /* Sello de cera */
+  .wax-seal {
+    position: absolute;
+    top: 18px;
+    right: 28px;
+    width: 70px;
+    height: 70px;
+    background: radial-gradient(circle at 35% 35%, #e85555 0%, var(--wax) 55%, #6a0a0a 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow:
+      inset -5px -5px 12px rgba(0,0,0,0.5),
+      inset 3px 3px 10px rgba(255,150,150,0.3),
+      0 4px 12px rgba(0,0,0,0.5);
+    transform: rotate(-15deg);
+    z-index: 5;
+  }
+
+  .wax-seal::before {
+    content: '✦';
+    color: rgba(255, 230, 200, 0.75);
+    font-size: 32px;
+    text-shadow: 1px 1px 3px rgba(0,0,0,0.6);
+  }
+
+  .intro-text {
+    font-family: 'Caveat', cursive;
+    font-size: clamp(1.2rem, 2.2vw, 1.5rem);
+    color: var(--ink-faded);
+    margin-bottom: 20px;
+    font-style: italic;
+  }
+
+  /* Ecuación */
+  .equation {
+    font-family: 'Pirata One', cursive;
+    font-size: clamp(2rem, 6vw, 4rem);
+    color: var(--ink);
+    margin: 25px 0;
+    letter-spacing: 2px;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 3px;
+    align-items: center;
+    text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.3);
+    min-height: 1.2em;
+  }
+
+  .letter {
+    display: inline-block;
+    animation: drop-in 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) backwards;
+  }
+
+  .letter.operator {
+    color: var(--gold-deep);
+    font-size: 0.85em;
+    margin: 0 2px;
+  }
+
+  @keyframes drop-in {
+    0% { transform: translateY(-50px) rotate(-180deg) scale(0); opacity: 0; }
+    100% { transform: translateY(0) rotate(0) scale(1); opacity: 1; }
+  }
+
+  /* Grupo de input */
+  .input-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 18px;
+    margin-top: 30px;
+  }
+
+  .input-label {
+    font-family: 'Caveat', cursive;
+    font-size: 1.4rem;
+    color: var(--ink-faded);
+    font-style: italic;
+  }
+
+  .answer-input {
+    font-family: 'Pirata One', cursive;
+    font-size: 2.5rem;
+    text-align: center;
+    background: rgba(255, 250, 240, 0.9);
+    border: 4px solid var(--ink);
+    border-radius: 6px;
+    padding: 8px 25px;
+    width: 180px;
+    color: var(--ink);
+    box-shadow:
+      inset 0 3px 5px rgba(0,0,0,0.15),
+      0 5px 0 var(--ink-faded),
+      0 7px 15px rgba(0,0,0,0.3);
+    transition: all 0.25s;
+    letter-spacing: 4px;
+  }
+
+  .answer-input::placeholder {
+    color: var(--parchment-dark);
+    opacity: 0.6;
+  }
+
+  .answer-input:focus {
+    outline: none;
+    border-color: var(--gold-deep);
+    background: rgba(255, 255, 240, 0.95);
+    box-shadow:
+      inset 0 3px 5px rgba(0,0,0,0.15),
+      0 5px 0 var(--ink-faded),
+      0 0 25px rgba(255, 200, 87, 0.6);
+  }
+
+  .check-btn {
+    font-family: 'Pirata One', cursive;
+    font-size: 1.6rem;
+    background: linear-gradient(180deg, var(--gold-bright) 0%, var(--gold) 50%, var(--gold-deep) 100%);
+    border: 4px solid var(--ink);
+    color: var(--ink);
+    padding: 10px 45px;
+    border-radius: 6px;
+    cursor: pointer;
+    letter-spacing: 3px;
+    box-shadow:
+      0 5px 0 var(--ink-faded),
+      0 8px 15px rgba(0,0,0,0.4);
+    transition: all 0.15s;
+    text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.4);
+  }
+
+  .check-btn:hover {
+    transform: translateY(-2px);
+    box-shadow:
+      0 7px 0 var(--ink-faded),
+      0 10px 20px rgba(0,0,0,0.5);
+  }
+
+  .check-btn:active {
+    transform: translateY(3px);
+    box-shadow:
+      0 2px 0 var(--ink-faded),
+      0 3px 8px rgba(0,0,0,0.3);
+  }
+
+  /* Feedback */
+  .feedback {
+    margin-top: 30px;
+    min-height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 20px;
+  }
+
+  .message {
+    padding: 25px 35px;
+    border-radius: 8px;
+    font-family: 'Pirata One', cursive;
+    font-size: clamp(1.2rem, 2.5vw, 1.6rem);
+    text-align: center;
+    max-width: 700px;
+    line-height: 1.4;
+    animation: message-appear 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+    letter-spacing: 2px;
+  }
+
+  @keyframes message-appear {
+    0% { transform: scale(0.3) rotate(-10deg); opacity: 0; }
+    60% { transform: scale(1.1) rotate(3deg); }
+    100% { transform: scale(1) rotate(0); opacity: 1; }
+  }
+
+  .message.success {
+    background:
+      radial-gradient(ellipse at center, rgba(109, 179, 63, 0.15) 0%, transparent 70%),
+      rgba(20, 40, 15, 0.75);
+    border: 3px solid var(--success);
+    color: #c8f0a0;
+    text-shadow: 0 0 15px rgba(200, 240, 160, 0.5);
+    box-shadow:
+      0 0 50px rgba(109, 179, 63, 0.4),
+      inset 0 0 25px rgba(109, 179, 63, 0.15);
+  }
+
+  .message.error {
+    background:
+      radial-gradient(ellipse at center, rgba(217, 69, 69, 0.15) 0%, transparent 70%),
+      rgba(40, 15, 15, 0.75);
+    border: 3px solid var(--error);
+    color: #ffb0b0;
+    text-shadow: 0 0 15px rgba(255, 150, 150, 0.4);
+    box-shadow:
+      0 0 40px rgba(217, 69, 69, 0.35),
+      inset 0 0 25px rgba(217, 69, 69, 0.12);
+  }
+
+  .message.error.shake-msg {
+    animation: message-appear 0.6s cubic-bezier(0.34, 1.56, 0.64, 1), error-shake 0.5s 0.6s;
+  }
+
+  @keyframes error-shake {
+    0%, 100% { transform: translateX(0); }
+    20% { transform: translateX(-12px); }
+    40% { transform: translateX(12px); }
+    60% { transform: translateX(-8px); }
+    80% { transform: translateX(8px); }
+  }
+
+  /* Sacudida del input */
+  .shake {
+    animation: input-shake 0.5s;
+  }
+
+  @keyframes input-shake {
+    0%, 100% { transform: translateX(0); }
+    20% { transform: translateX(-15px) rotate(-2deg); }
+    40% { transform: translateX(15px) rotate(2deg); }
+    60% { transform: translateX(-10px) rotate(-1deg); }
+    80% { transform: translateX(10px) rotate(1deg); }
+  }
+
+  /* Cofre del tesoro */
+  .treasure-chest {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 110px;
+    height: auto;
+    z-index: 5;
+    animation: chest-glow 4s ease-in-out infinite;
+    pointer-events: none;
+  }
+
+  @keyframes chest-glow {
+    0%, 100% {
+      filter: drop-shadow(0 0 10px rgba(255, 200, 87, 0.3));
+      transform: translateY(0);
+    }
+    50% {
+      filter: drop-shadow(0 0 25px rgba(255, 200, 87, 0.7));
+      transform: translateY(-3px);
+    }
+  }
+
+  /* Confeti */
+  .confetti {
+    position: fixed;
+    pointer-events: none;
+    z-index: 100;
+    animation: confetti-fall linear forwards;
+  }
+
+  @keyframes confetti-fall {
+    0% { transform: translateY(-100vh) rotate(0); opacity: 1; }
+    100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+  }
+
+  /* Pista */
+  .hint {
+    margin-top: 30px;
+    font-family: 'Caveat', cursive;
+    font-size: clamp(1.1rem, 2vw, 1.4rem);
+    color: var(--parchment-dark);
+    font-style: italic;
+    opacity: 0.7;
+    animation: fade-in 2s ease-out 1.5s backwards;
+  }
+
+  @keyframes fade-in {
+    0% { opacity: 0; }
+    100% { opacity: 0.7; }
+  }
+
+  @media (max-width: 600px) {
+    .treasure-chest { width: 75px; bottom: 15px; right: 15px; }
+    .floating-key, .floating-key-2 { display: none; }
+    .parchment { padding: 40px 22px 30px; }
+    .wax-seal { width: 50px; height: 50px; top: 12px; right: 15px; }
+    .wax-seal::before { font-size: 22px; }
+    .answer-input { width: 150px; font-size: 2rem; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="particles" id="particles"></div>
+
+<div class="floating-key">🗝️</div>
+<div class="floating-key-2">🗝️</div>
+
+<div class="container">
+  <header class="header">
+    <div class="compass-icon">🧭</div>
+    <h1 class="title">El Enigma del Tesoro</h1>
+    <p class="subtitle">~ Solo los valientes descubrirán el secreto ~</p>
+  </header>
+
+  <main class="parchment" id="parchment">
+    <div class="wax-seal" aria-hidden="true"></div>
+
+    <p class="intro-text">Descifra el mensaje, intrépido aventurero...</p>
+
+    <div class="equation" id="equation" aria-label="Ecuación secreta"></div>
+
+    <div class="input-group">
+      <label class="input-label" for="answer">Tu respuesta:</label>
+      <input
+        type="text"
+        class="answer-input"
+        id="answer"
+        placeholder="?"
+        autocomplete="off"
+        inputmode="numeric"
+        maxlength="10"
+        aria-label="Introduce tu respuesta"
+      >
+      <button class="check-btn" id="checkBtn">DESCIFRAR</button>
+    </div>
+  </main>
+
+  <div class="feedback" id="feedback" role="status" aria-live="polite"></div>
+
+  <p class="hint">* Cada letra guarda un número escondido... *</p>
+</div>
+
+<svg class="treasure-chest" viewBox="0 0 120 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+  <!-- Cuerpo del cofre -->
+  <rect x="15" y="50" width="90" height="45" fill="#5c3317" stroke="#2a1810" stroke-width="2.5"/>
+  <!-- Tapa curva -->
+  <path d="M 15 50 Q 15 20 60 20 Q 105 20 105 50 Z" fill="#7a4422" stroke="#2a1810" stroke-width="2.5"/>
+  <!-- Banda metálica central -->
+  <rect x="15" y="48" width="90" height="6" fill="#a87830" stroke="#2a1810" stroke-width="1"/>
+  <!-- Cerradura -->
+  <rect x="50" y="55" width="20" height="18" fill="#ffc857" stroke="#2a1810" stroke-width="2"/>
+  <circle cx="60" cy="63" r="2.5" fill="#2a1810"/>
+  <rect x="58.5" y="63" width="3" height="6" fill="#2a1810"/>
+  <!-- Refuerzos en esquinas -->
+  <rect x="15" y="50" width="8" height="8" fill="#a87830" stroke="#2a1810" stroke-width="1"/>
+  <rect x="97" y="50" width="8" height="8" fill="#a87830" stroke="#2a1810" stroke-width="1"/>
+  <rect x="15" y="87" width="8" height="8" fill="#a87830" stroke="#2a1810" stroke-width="1"/>
+  <rect x="97" y="87" width="8" height="8" fill="#a87830" stroke="#2a1810" stroke-width="1"/>
+  <!-- Brillo dorado interior -->
+  <ellipse cx="60" cy="50" rx="28" ry="4" fill="#ffe09a" opacity="0.7"/>
+  <!-- Líneas de madera -->
+  <line x1="35" y1="55" x2="35" y2="92" stroke="#3d1f0a" stroke-width="0.8" opacity="0.5"/>
+  <line x1="85" y1="55" x2="85" y2="92" stroke="#3d1f0a" stroke-width="0.8" opacity="0.5"/>
+</svg>
+
+<script>
+  // === Construir la ecuación con letras animadas ===
+  const word = 'B+I+E+N+V+E+N+I+D+O+S=';
+  const equationEl = document.getElementById('equation');
+
+  [...word].forEach((char, i) => {
+    const span = document.createElement('span');
+    span.className = 'letter';
+    if (char === '+' || char === '=') span.classList.add('operator');
+    span.textContent = char;
+    // Las letras empiezan a caer después de que el pergamino aparezca
+    span.style.animationDelay = `${1 + i * 0.1}s`;
+    equationEl.appendChild(span);
+  });
+
+  // === Generar partículas doradas flotantes ===
+  const particlesEl = document.getElementById('particles');
+  for (let i = 0; i < 50; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    const size = Math.random() * 5 + 2;
+    p.style.width = size + 'px';
+    p.style.height = size + 'px';
+    p.style.left = Math.random() * 100 + '%';
+    p.style.setProperty('--drift', (Math.random() * 200 - 100) + 'px');
+    p.style.animationDuration = (Math.random() * 12 + 10) + 's';
+    p.style.animationDelay = -Math.random() * 20 + 's';
+    p.style.opacity = Math.random() * 0.6 + 0.3;
+    particlesEl.appendChild(p);
+  }
+
+  // === Lógica de validación ===
+  const input = document.getElementById('answer');
+  const btn = document.getElementById('checkBtn');
+  const feedback = document.getElementById('feedback');
+  const parchment = document.getElementById('parchment');
+
+  function checkAnswer() {
+    const value = input.value.trim();
+    feedback.innerHTML = '';
+    parchment.classList.remove('success-glow');
+
+    // Pequeño delay para que la transición se note
+    setTimeout(() => {
+      const msg = document.createElement('div');
+      msg.className = 'message';
+
+      if (value === '45') {
+        // ¡Respuesta correcta!
+        msg.classList.add('success');
+        msg.textContent = 'VIERON QUE HAY UN LIBRO QUE PARECE LIBRO PERO NO ES LIBRO?';
+        feedback.appendChild(msg);
+        parchment.classList.add('success-glow');
+        launchConfetti();
+        setTimeout(launchConfetti, 500);
+        setTimeout(launchConfetti, 1000);
+      } else {
+        // Respuesta incorrecta
+        msg.classList.add('error', 'shake-msg');
+        msg.textContent = 'CONTRASEÑA EQUIVOCADA';
+        feedback.appendChild(msg);
+        input.classList.add('shake');
+        setTimeout(() => input.classList.remove('shake'), 500);
+      }
+    }, 50);
+  }
+
+  btn.addEventListener('click', checkAnswer);
+  input.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      checkAnswer();
+    }
+  });
+
+  // === Lanzar confeti dorado ===
+  function launchConfetti() {
+    const colors = ['#ffc857', '#ffe09a', '#f0a500', '#e8d5a8', '#c89a30', '#ffd700', '#fff4c2'];
+
+    for (let i = 0; i < 60; i++) {
+      const c = document.createElement('div');
+      c.className = 'confetti';
+      const color = colors[Math.floor(Math.random() * colors.length)];
+      const shape = Math.random();
+      const size = Math.random() * 8 + 6;
+
+      if (shape < 0.4) {
+        // Círculo
+        c.style.width = size + 'px';
+        c.style.height = size + 'px';
+        c.style.background = color;
+        c.style.borderRadius = '50%';
+      } else if (shape < 0.75) {
+        // Cuadrado
+        c.style.width = size + 'px';
+        c.style.height = size + 'px';
+        c.style.background = color;
+      } else {
+        // Triángulo
+        c.style.width = '0';
+        c.style.height = '0';
+        c.style.borderLeft = (size / 2) + 'px solid transparent';
+        c.style.borderRight = (size / 2) + 'px solid transparent';
+        c.style.borderBottom = size + 'px solid ' + color;
+      }
+
+      c.style.left = Math.random() * 100 + 'vw';
+      c.style.top = '-20px';
+      c.style.animationDuration = (Math.random() * 2 + 2.5) + 's';
+      c.style.animationDelay = Math.random() * 0.3 + 's';
+
+      document.body.appendChild(c);
+      setTimeout(() => c.remove(), 5000);
+    }
+  }
+
+  // Auto-focus en el input después de las animaciones iniciales
+  setTimeout(() => input.focus(), 2800);
+</script>
+
+</body>
+</html>
